@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ScatterChart, Scatter, ZAxis, ReferenceLine } from "recharts";
 import { useSheetData } from "./useSheetData";
+import SHEET_DATA from "./data.json";
 
 const G="#C9A84C",G2="#E8D080",DK="#0B0B0B",CD="#131313",BD="#222",
   TX="#E0E0E0",MU="#555",GR="#52B87A",RE="#E06060",BL="#5B9BD5";
@@ -11,46 +12,9 @@ const rc=r=>r>=75?GR:r>=40?G:RE;
 const MONTHS={2023:30,2024:18,2025:6,2026:2};
 const td=(extra={})=>({padding:"9px 12px",...extra});
 
-const FALLBACK_ACTIVE=[
-  {no:1,dev:"Exsim",name:"Noordinz Suites",units:603,sfMin:550,sfMax:1100,psfMin:937,psfMax:1080,pMin:593800,pMax:1031100,launch:2023,comp:"Q3 2027",rate:99.83},
-  {no:2,dev:"Ideal",name:"Queens Residences Q3",units:532,sfMin:950,sfMax:1400,psfMin:908,psfMax:2068,pMin:862200,pMax:2894760,launch:2023,comp:"Q4 2027",rate:56.95},
-  {no:3,dev:"E&O",name:"The Lume",units:261,sfMin:1722,sfMax:2874,psfMin:970,psfMax:1329,pMin:1670100,pMax:3820000,launch:2024,comp:"Q1 2029",rate:73.18},
-  {no:4,dev:"E&O",name:"Maris",units:516,sfMin:979,sfMax:1250,psfMin:902,psfMax:1418,pMin:883500,pMax:1772000,launch:2025,comp:"Q3 2029",rate:59.69},
-  {no:5,dev:"BSG Property",name:"Westin Residences",units:498,sfMin:1033,sfMax:1604,psfMin:1860,psfMax:2183,pMin:1921000,pMax:3501000,launch:2025,comp:"Q4 2029",rate:76.50},
-  {no:6,dev:"GSD Land",name:"G'Vinton",units:508,sfMin:387,sfMax:474,psfMin:1440,psfMax:1539,pMin:595500,pMax:682500,launch:2024,comp:"Q3 2027",rate:0.59},
-  {no:7,dev:"BSG Property",name:"Lumina Residence",units:596,sfMin:1206,sfMax:1346,psfMin:854,psfMax:1200,pMin:1030000,pMax:1614000,launch:2024,comp:"Q2 2028",rate:78.69},
-  {no:8,dev:"Tamarins",name:"The Anton",units:51,sfMin:2702,sfMax:3100,psfMin:1111,psfMax:1630,pMin:3003000,pMax:5052000,launch:2024,comp:"Q4 2026",rate:94.12},
-  {no:9,dev:"Chin Hin",name:"The Crown",units:588,sfMin:614,sfMax:840,psfMin:1147,psfMax:1287,pMin:704000,pMax:1081000,launch:2023,comp:"Q4 2028",rate:78.23},
-  {no:10,dev:"Advance Golden",name:"Scott @ Logan",units:311,sfMin:335,sfMax:550,psfMin:1414,psfMax:1423,pMin:473800,pMax:782800,launch:2024,comp:"Q3 2027",rate:22.19},
-  {no:11,dev:"Airmas",name:"Alton Skyvillas",units:161,sfMin:1132,sfMax:1687,psfMin:794,psfMax:806,pMin:898560,pMax:1360000,launch:2023,comp:"Q2 2026",rate:65.22},
-  {no:12,dev:"IJM",name:"Lightwater Residences",units:262,sfMin:1152,sfMax:1690,psfMin:1784,psfMax:2075,pMin:2055000,pMax:3507000,launch:2024,comp:"Q1 2027",rate:16.03},
-  {no:13,dev:"Exsim",name:"The Lighthauz",units:671,sfMin:732,sfMax:1001,psfMin:1173,psfMax:1181,pMin:864500,pMax:1173700,launch:2025,comp:"Q4 2028",rate:69.90},
-  {no:14,dev:"E&O",name:"Avea",units:1080,sfMin:678,sfMax:1076,psfMin:1007,psfMax:1553,pMin:683000,pMax:1671000,launch:2025,comp:"Q4 2028",rate:20.09},
-  {no:15,dev:"SP Setia",name:"Setia SV2",units:268,sfMin:1058,sfMax:1652,psfMin:970,psfMax:1104,pMin:1168000,pMax:1604000,launch:2025,comp:"Q4 2028",rate:6.72},
-  {no:16,dev:"Exsim",name:"Keeperz Suites",units:493,sfMin:484,sfMax:581,psfMin:1433,psfMax:1723,pMin:832600,pMax:1001000,launch:2026,comp:"Q1 2029",rate:0.20},
-  {no:17,dev:"Rackson",name:"Avion",units:608,sfMin:488,sfMax:1328,psfMin:882,psfMax:922,pMin:430578,pMax:1224000,launch:2024,comp:"Q1 2027",rate:78.78},
-  {no:18,dev:"Seal Inc.",name:"Bayan Suite",units:326,sfMin:592,sfMax:872,psfMin:865,psfMax:973,pMin:511900,pMax:848800,launch:2024,comp:"Q4 2027",rate:49.39},
-];
-const FALLBACK_DONE=[{dev:"IJM",name:"Mezzo",units:456,psfMin:1016,psfMax:1045,rate:50.22},{dev:"YTL",name:"Shorefront",units:115,psfMin:996,psfMax:1319,rate:100}];
-const FALLBACK_ANN=[
-  {sh:"Queens Q3",name:"Queens Residences Q3",y4:76,y5:151,y6:76,dev:"Ideal"},
-  {sh:"The Lume",name:"The Lume",y4:48,y5:95,y6:48,dev:"E&O"},
-  {sh:"Maris",name:"Maris",y4:0,y5:205,y6:103,dev:"E&O"},
-  {sh:"Westin",name:"Westin Residences",y4:0,y5:254,y6:127,dev:"BSG Property"},
-  {sh:"G'Vinton",name:"G'Vinton",y4:0,y5:2,y6:1,dev:"GSD Land"},
-  {sh:"Lumina",name:"Lumina Residence",y4:0,y5:312,y6:157,dev:"BSG Property"},
-  {sh:"The Crown",name:"The Crown",y4:115,y5:230,y6:115,dev:"Chin Hin"},
-  {sh:"Scott@L",name:"Scott @ Logan",y4:17,y5:34,y6:18,dev:"Advance Golden"},
-  {sh:"Alton",name:"Alton Skyvillas",y4:0,y5:0,y6:105,dev:"Airmas"},
-  {sh:"Lightwater",name:"Lightwater Residences",y4:10,y5:21,y6:11,dev:"IJM"},
-  {sh:"Lighthauz*",name:"The Lighthauz",y4:0,y5:234,y6:235,dev:"Exsim"},
-  {sh:"Avea",name:"Avea",y4:0,y5:0,y6:217,dev:"E&O"},
-  {sh:"Setia SV2",name:"Setia SV2",y4:0,y5:0,y6:18,dev:"SP Setia"},
-  {sh:"Keeperz*",name:"Keeperz Suites",y4:0,y5:0,y6:1,dev:"Exsim"},
-  {sh:"Avion",name:"Avion",y4:120,y5:239,y6:120,dev:"Rackson"},
-  {sh:"Bayan Suite",name:"Bayan Suite",y4:0,y5:107,y6:54,dev:"Seal Inc."},
-];
-const FALLBACK={active:FALLBACK_ACTIVE,annual:FALLBACK_ANN,completed:FALLBACK_DONE};
+// Data is sourced from src/data.json (generated from public/Master_File.xlsx).
+// To update: edit the Excel, run `npm run update-data`, then commit & push.
+const FALLBACK = { active: SHEET_DATA.active, annual: SHEET_DATA.ann, completed: SHEET_DATA.completed };
 const CRD={"Noordinz Suites":{x:367,y:128},"Queens Residences Q3":{x:320,y:217},"The Lume":{x:328,y:62},"Maris":{x:342,y:70},"Westin Residences":{x:315,y:78},"G'Vinton":{x:355,y:97},"Lumina Residence":{x:350,y:104},"The Anton":{x:308,y:104},"The Crown":{x:303,y:64},"Scott @ Logan":{x:333,y:116},"Alton Skyvillas":{x:332,y:149},"Lightwater Residences":{x:335,y:175},"The Lighthauz":{x:344,y:110},"Avea":{x:352,y:75},"Setia SV2":{x:317,y:140},"Keeperz Suites":{x:363,y:122},"Avion":{x:233,y:267},"Bayan Suite":{x:322,y:196}};
 const ZMAP={"Tanjung Tokong/North":["The Lume","Maris","Westin Residences","The Crown","Avea"],"Georgetown/Gurney":["Noordinz Suites","G'Vinton","Lumina Residence","The Anton","Scott @ Logan","The Lighthauz","Keeperz Suites"],"Jelutong/Gelugor":["Alton Skyvillas","Setia SV2","Lightwater Residences"],"Bayan Lepas":["Queens Residences Q3","Avion","Bayan Suite"]};
 const ZC={"Tanjung Tokong/North":G,"Georgetown/Gurney":BL,"Jelutong/Gelugor":GR,"Bayan Lepas":RE};
