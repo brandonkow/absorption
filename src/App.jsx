@@ -3,9 +3,9 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { useSheetData } from "./useSheetData";
 import SHEET_DATA from "./data.json";
 
-const G="#C9A84C",G2="#E8D080",DK="#0B0B0B",CD="#131313",BD="#222",
-  TX="#E0E0E0",MU="#555",GR="#52B87A",RE="#E06060",BL="#5B9BD5";
-const TP={background:"#0d0d0d",border:"1px solid #3a3a3a",borderRadius:8,padding:"10px 14px",boxShadow:"0 6px 24px rgba(0,0,0,0.9)",fontSize:12};
+const G="#17E88F",G2="#DBD99A",DK="#011218",CD="#032842",BD="#0d3555",
+  TX="#CAD1D3",MU="#778F9C",GR="#00C27A",RE="#E06060",BL="#80BBAD";
+const TP={background:"#021218",border:"1px solid #0d3555",borderRadius:8,padding:"10px 14px",boxShadow:"0 6px 24px rgba(0,0,0,0.9)",fontSize:12};
 const pct=v=>`${v.toFixed(1)}%`;
 const fmt=v=>v>=1e6?`RM ${(v/1e6).toFixed(2)}M`:`RM ${(v/1e3).toFixed(0)}K`;
 const rc=r=>r>=75?GR:r>=40?G:RE;
@@ -50,9 +50,9 @@ function SortTh({col,label,sc,sd,fn}){
 function Tip({name,dev,rows}){
   return (
     <div style={TP}>
-      <p style={{color:dev==="Exsim"?G:"#fff",fontWeight:700,fontSize:13,margin:"0 0 3px"}}>{name}</p>
-      {dev && <p style={{color:"#555",fontSize:11,margin:"0 0 8px"}}>{dev}</p>}
-      {rows.map((r,i)=>(<p key={i} style={{margin:"2px 0",color:"#888",fontSize:12}}>{r.label}: <strong style={{color:r.c||"#fff"}}>{r.v}</strong></p>))}
+      <p style={{color:dev==="Exsim"?G:TX,fontWeight:700,fontSize:13,margin:"0 0 3px"}}>{name}</p>
+      {dev && <p style={{color:MU,fontSize:11,margin:"0 0 8px"}}>{dev}</p>}
+      {rows.map((r,i)=>(<p key={i} style={{margin:"2px 0",color:MU,fontSize:12}}>{r.label}: <strong style={{color:r.c||TX}}>{r.v}</strong></p>))}
     </div>
   );
 }
@@ -74,7 +74,7 @@ function AnnProjTip({active,payload}){
   if(!active||!payload||!payload.length) return null;
   const d=payload[0].payload;
   const tot=(d.y4||0)+(d.y5||0)+(d.y6||0);
-  return (<Tip name={d.name} dev={d.dev} rows={[{label:"2024",v:d.y4||"—",c:BL},{label:"2025",v:d.y5||"—",c:G},{label:"1H 2026",v:d.y6||"—",c:GR},{label:"Total",v:tot,c:"#fff"}]} />);
+  return (<Tip name={d.name} dev={d.dev} rows={[{label:"2024",v:d.y4||"—",c:BL},{label:"2025",v:d.y5||"—",c:G},{label:"1H 2026",v:d.y6||"—",c:GR},{label:"Total",v:tot,c:TX}]} />);
 }
 function AbsTip({active,payload}){
   if(!active||!payload||!payload.length) return null;
@@ -96,13 +96,13 @@ function MapHover({p,c}){
   const bx=c.x>430?c.x-168:c.x+14,by=c.y>290?c.y-108:c.y-6;
   return (
     <g>
-      <rect x={bx} y={by} width={162} height={100} rx="6" fill="#0d0d0d" stroke={p.dev==="Exsim"?G:"#333"} strokeWidth="1"/>
-      <text x={bx+10} y={by+15} fill={p.dev==="Exsim"?G:"#fff"} fontSize="10" fontWeight="bold" fontFamily="sans-serif">{p.name}</text>
-      <text x={bx+10} y={by+28} fill="#666" fontSize="8.5" fontFamily="sans-serif">{p.dev} · {p.comp}</text>
-      <text x={bx+10} y={by+42} fill="#ccc" fontSize="8.5" fontFamily="sans-serif">{p.units} units · RM {p.psfMin}–{p.psfMax} psf</text>
+      <rect x={bx} y={by} width={162} height={100} rx="6" fill="#021218" stroke={p.dev==="Exsim"?G:"#1a3a4a"} strokeWidth="1"/>
+      <text x={bx+10} y={by+15} fill={p.dev==="Exsim"?G:TX} fontSize="10" fontWeight="bold" fontFamily="sans-serif">{p.name}</text>
+      <text x={bx+10} y={by+28} fill={MU} fontSize="8.5" fontFamily="sans-serif">{p.dev} · {p.comp}</text>
+      <text x={bx+10} y={by+42} fill={TX} fontSize="8.5" fontFamily="sans-serif">{p.units} units · RM {p.psfMin}–{p.psfMax} psf</text>
       <text x={bx+10} y={by+56} fill={rc(p.rate)} fontSize="9" fontFamily="sans-serif" fontWeight="bold">Sales Rate: {p.rate}%</text>
-      <text x={bx+10} y={by+70} fill="#666" fontSize="8.5" fontFamily="sans-serif">Monthly: {p.monthly}%/mo</text>
-      <text x={bx+10} y={by+84} fill="#666" fontSize="8.5" fontFamily="sans-serif">Sell-Out: {p.so<=0?"Sold Out":`~${p.so} months`}</text>
+      <text x={bx+10} y={by+70} fill={MU} fontSize="8.5" fontFamily="sans-serif">Monthly: {p.monthly}%/mo</text>
+      <text x={bx+10} y={by+84} fill={MU} fontSize="8.5" fontFamily="sans-serif">Sell-Out: {p.so<=0?"Sold Out":`~${p.so} months`}</text>
       <text x={bx+10} y={by+97} fill={ZC[p.zone]||MU} fontSize="8" fontFamily="sans-serif">{p.zone}</text>
     </g>
   );
@@ -172,7 +172,7 @@ export default function App(){
   return (
     <div style={{background:DK,minHeight:"100vh",color:TX,fontFamily:"'Segoe UI',sans-serif",fontSize:14}}>
       {/* Header */}
-      <div style={{background:"linear-gradient(135deg,#0a0900,#161106)",borderBottom:G+"22 1px solid",padding:"20px 28px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+      <div style={{background:"linear-gradient(135deg,#001520,#032842)",borderBottom:G+"22 1px solid",padding:"20px 28px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
         <div>
           <div style={{fontSize:10,color:G,letterSpacing:3,textTransform:"uppercase",marginBottom:4}}>Penang High-Rise Residential Market</div>
           <div style={{fontSize:22,fontWeight:700}}>Market Absorption Study</div>
@@ -188,9 +188,9 @@ export default function App(){
       </div>
 
       {/* Tabs */}
-      <div style={{background:"#080808",borderBottom:"1px solid #1a1a1a",padding:"0 28px",display:"flex",overflowX:"auto"}}>
+      <div style={{background:"#020e18",borderBottom:"1px solid #0d2030",padding:"0 28px",display:"flex",overflowX:"auto"}}>
         {TABS.map(t=>{const act=tab===t;return(
-          <button key={t} onClick={()=>setTab(t)} style={{position:"relative",background:"transparent",color:act?G:"#3a3a3a",border:"none",padding:"14px 18px 12px",fontWeight:act?600:400,fontSize:11,cursor:"pointer",whiteSpace:"nowrap",letterSpacing:act?0.8:0.3,outline:"none",transition:"color 0.2s"}}>
+          <button key={t} onClick={()=>setTab(t)} style={{position:"relative",background:"transparent",color:act?G:"#2a5060",border:"none",padding:"14px 18px 12px",fontWeight:act?600:400,fontSize:11,cursor:"pointer",whiteSpace:"nowrap",letterSpacing:act?0.8:0.3,outline:"none",transition:"color 0.2s"}}>
             {t}<span style={{position:"absolute",bottom:0,left:act?"12px":"50%",right:act?"12px":"50%",height:2,background:"linear-gradient(90deg,"+G+"00,"+G+","+G+"00)",borderRadius:2,transition:"left 0.25s,right 0.25s,opacity 0.2s",opacity:act?1:0,boxShadow:act?"0 0 8px "+G+"88":"none"}}/>
           </button>
         );})}
@@ -214,9 +214,9 @@ export default function App(){
               <CardHead title="Active Market — Full Snapshot" sub="Click headers to sort" onDl={()=>dlCSV(sorted,[{key:"no",label:"#"},{key:"dev",label:"Developer"},{key:"name",label:"Project"},{key:"units",label:"Units"},{key:"psfMid",label:"Avg PSF"},{key:"launch",label:"Launch"},{key:"comp",label:"Completion"},{key:"rate",label:"Sales Rate %"},{key:"sold",label:"Sold"},{key:"monthly",label:"Monthly Abs %"}],"market_snapshot")} dlLabel="Export CSV"/>
               <div style={{overflowX:"auto"}}>
                 <table style={{width:"100%",borderCollapse:"collapse"}}>
-                  <thead style={{background:"#0a0a0a"}}><tr><SortTh col="no" label="#" sc={sc} sd={sd} fn={ds}/><SortTh col="dev" label="Developer" sc={sc} sd={sd} fn={ds}/><SortTh col="name" label="Project" sc={sc} sd={sd} fn={ds}/><SortTh col="units" label="Units" sc={sc} sd={sd} fn={ds}/><SortTh col="psfMid" label="Avg PSF" sc={sc} sd={sd} fn={ds}/><SortTh col="launch" label="Launch" sc={sc} sd={sd} fn={ds}/><SortTh col="comp" label="Comp." sc={sc} sd={sd} fn={ds}/><SortTh col="rate" label="Sales Rate %" sc={sc} sd={sd} fn={ds}/><SortTh col="sold" label="Sold" sc={sc} sd={sd} fn={ds}/><SortTh col="monthly" label="Monthly Abs." sc={sc} sd={sd} fn={ds}/></tr></thead>
+                  <thead style={{background:"#011a2a"}}><tr><SortTh col="no" label="#" sc={sc} sd={sd} fn={ds}/><SortTh col="dev" label="Developer" sc={sc} sd={sd} fn={ds}/><SortTh col="name" label="Project" sc={sc} sd={sd} fn={ds}/><SortTh col="units" label="Units" sc={sc} sd={sd} fn={ds}/><SortTh col="psfMid" label="Avg PSF" sc={sc} sd={sd} fn={ds}/><SortTh col="launch" label="Launch" sc={sc} sd={sd} fn={ds}/><SortTh col="comp" label="Comp." sc={sc} sd={sd} fn={ds}/><SortTh col="rate" label="Sales Rate %" sc={sc} sd={sd} fn={ds}/><SortTh col="sold" label="Sold" sc={sc} sd={sd} fn={ds}/><SortTh col="monthly" label="Monthly Abs." sc={sc} sd={sd} fn={ds}/></tr></thead>
                   <tbody>{sorted.map((p,i)=>(
-                    <tr key={p.no} style={{background:p.dev==="Exsim"?"#161000":i%2===0?"transparent":"#0c0c0c",borderBottom:"1px solid #161616"}}>
+                    <tr key={p.no} style={{background:p.dev==="Exsim"?"#001a14":i%2===0?"transparent":"#020e18",borderBottom:"1px solid #0d2030"}}>
                       <td style={td({color:MU,fontSize:11})}>{p.no}</td>
                       <td style={td({color:p.dev==="Exsim"?G:TX,fontWeight:p.dev==="Exsim"?700:400,fontSize:12})}>{p.dev}{p.dev==="Exsim"?" ★":""}</td>
                       <td style={td({color:TX,fontSize:12})}>{p.name}</td>
@@ -226,7 +226,7 @@ export default function App(){
                       <td style={td({color:MU})}>{p.comp}</td>
                       <td style={td()}>
                         <div style={{display:"flex",alignItems:"center",gap:8}}>
-                          <div style={{flex:1,height:5,background:"#1e1e1e",borderRadius:3}}><div style={{height:"100%",width:`${Math.min(p.rate,100)}%`,background:rc(p.rate),borderRadius:3}}/></div>
+                          <div style={{flex:1,height:5,background:"#0d2030",borderRadius:3}}><div style={{height:"100%",width:`${Math.min(p.rate,100)}%`,background:rc(p.rate),borderRadius:3}}/></div>
                           <span style={{color:rc(p.rate),fontWeight:600,fontSize:12,minWidth:42}}>{pct(p.rate)}</span>
                         </div>
                       </td>
@@ -237,14 +237,14 @@ export default function App(){
                 </table>
               </div>
             </div>
-            <div style={{background:"#0d0d16",border:"1px solid #1a1a2e",borderRadius:10,padding:"14px 18px"}}>
+            <div style={{background:"#021828",border:"1px solid #0d2c40",borderRadius:10,padding:"14px 18px"}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
                 <div style={{fontSize:12,fontWeight:600,color:BL}}>📌 Completed Benchmarks</div>
                 <DBtn onClick={()=>dlCSV(DONE,[{key:"name",label:"Project"},{key:"dev",label:"Developer"},{key:"units",label:"Units"},{key:"psfMin",label:"PSF Min"},{key:"psfMax",label:"PSF Max"},{key:"rate",label:"Take-Up %"}],"completed_benchmarks")} label="Export CSV"/>
               </div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
                 {DONE.map((p,i)=>(
-                  <div key={i} style={{background:"#111120",borderRadius:8,padding:"12px 16px",border:"1px solid #1e1e32"}}>
+                  <div key={i} style={{background:"#011828",borderRadius:8,padding:"12px 16px",border:"1px solid #0d3050"}}>
                     <div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}><span style={{fontWeight:600,color:TX}}>{p.name}</span><span style={{fontSize:11,color:MU}}>{p.dev}</span></div>
                     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
                       {[["Units",p.units,TX],["PSF",`RM ${p.psfMin}–${p.psfMax}`,TX],["Take-Up",pct(p.rate),rc(p.rate)]].map(([l,v,c],j)=>(
@@ -266,7 +266,7 @@ export default function App(){
               <div id="ch-sales" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={430}>
                   <BarChart data={bD} layout="vertical" margin={{left:8}}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#181818" horizontal={false}/>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#0d2030" horizontal={false}/>
                     <XAxis type="number" domain={[0,100]} tick={{fill:MU,fontSize:11}} unit="%"/>
                     <YAxis dataKey="name" type="category" tick={{fill:MU,fontSize:9}} width={190} interval={0}/>
                     <Tooltip content={<BarTip/>}/>
@@ -281,10 +281,10 @@ export default function App(){
               <div style={{padding:"0 18px 18px"}}>
                 {Object.entries(en.reduce((a,p)=>{if(!a[p.dev])a[p.dev]={n:0,u:0,s:0};a[p.dev].n++;a[p.dev].u+=p.units;a[p.dev].s+=p.sold;return a;},{})).sort((a,b)=>(b[1].s/b[1].u)-(a[1].s/a[1].u)).map(([dev,d],i)=>{
                   const r=d.s/d.u*100,isEx=dev==="Exsim";
-                  return (<div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 0",borderBottom:"1px solid #161616"}}>
+                  return (<div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 0",borderBottom:"1px solid #0d2030"}}>
                     <div style={{width:130,fontSize:12,color:isEx?G:TX,fontWeight:isEx?700:400}}>{dev}{isEx?" ★":""}</div>
                     <div style={{fontSize:11,color:MU,width:55}}>{d.n} proj.</div>
-                    <div style={{flex:1,height:7,background:"#1e1e1e",borderRadius:4}}><div style={{height:"100%",width:`${Math.min(r,100)}%`,background:isEx?G:rc(r),borderRadius:4}}/></div>
+                    <div style={{flex:1,height:7,background:"#0d2030",borderRadius:4}}><div style={{height:"100%",width:`${Math.min(r,100)}%`,background:isEx?G:rc(r),borderRadius:4}}/></div>
                     <div style={{width:50,textAlign:"right",color:rc(r),fontWeight:700,fontSize:13}}>{r.toFixed(1)}%</div>
                     <div style={{width:90,textAlign:"right",fontSize:11,color:MU}}>{d.s}/{d.u} units</div>
                   </div>);
@@ -302,7 +302,7 @@ export default function App(){
               <div id="ch-psf" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={430}>
                   <BarChart data={[...en].sort((a,b)=>a.psfMid-b.psfMid).map(p=>({name:p.name,full:p.name,dev:p.dev,base:p.psfMin,range:p.psfMax-p.psfMin,mid:p.psfMid,lo:p.psfMin,hi:p.psfMax}))} layout="vertical" margin={{left:8}}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#181818" horizontal={false}/>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#0d2030" horizontal={false}/>
                     <XAxis type="number" tick={{fill:MU,fontSize:11}} tickFormatter={v=>`RM ${v}`}/>
                     <YAxis dataKey="name" type="category" tick={{fill:MU,fontSize:9}} width={190} interval={0}/>
                     <Tooltip content={<PSFTip/>}/>
@@ -319,7 +319,7 @@ export default function App(){
                 <tbody>{[...en].sort((a,b)=>b.psfMid-a.psfMid).map((p,i)=>{
                   const tier=p.psfMid>=1600?"Ultra Luxury":p.psfMid>=1200?"Luxury":p.psfMid>=900?"Premium":"Mid-Range";
                   const tc=p.psfMid>=1600?G:p.psfMid>=1200?G2:p.psfMid>=900?BL:MU;
-                  return (<tr key={i} style={{borderBottom:"1px solid #161616",background:p.dev==="Exsim"?"#161000":i%2===0?"transparent":"#0c0c0c"}}>
+                  return (<tr key={i} style={{borderBottom:"1px solid #0d2030",background:p.dev==="Exsim"?"#001a14":i%2===0?"transparent":"#020e18"}}>
                     <td style={td({color:p.dev==="Exsim"?G:TX,fontWeight:p.dev==="Exsim"?700:400,fontSize:12})}>{p.name}</td>
                     <td style={td({color:MU,fontSize:12})}>{p.dev}</td>
                     <td style={td({color:MU})}>RM {p.psfMin.toLocaleString()}</td>
@@ -352,7 +352,7 @@ export default function App(){
                 <div id="ch-atot" style={{padding:"14px 18px"}}>
                   <ResponsiveContainer width="100%" height={170}>
                     <BarChart data={ATOT}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#181818"/>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#0d2030"/>
                       <XAxis dataKey="p" tick={{fill:MU,fontSize:11}}/>
                       <YAxis tick={{fill:MU,fontSize:11}}/>
                       <Tooltip content={<AnnTotTip/>}/>
@@ -361,7 +361,7 @@ export default function App(){
                   </ResponsiveContainer>
                   <div style={{marginTop:12,display:"flex",flexDirection:"column",gap:6}}>
                     {[{l:"2024",v:386,c:BL},{l:"2025",v:1884,c:G},{l:"1H 2026",v:1406,c:GR}].map((r,i)=>(
-                      <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",background:"#0a0a0a",borderRadius:6,padding:"6px 10px",border:"1px solid #1a1a1a"}}>
+                      <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",background:"#021828",borderRadius:6,padding:"6px 10px",border:"1px solid #0d2030"}}>
                         <span style={{fontSize:11,color:MU}}>{r.l}</span><span style={{fontSize:13,fontWeight:700,color:r.c}}>{r.v.toLocaleString()}</span>
                       </div>
                     ))}
@@ -378,7 +378,7 @@ export default function App(){
                   </div>
                   <ResponsiveContainer width="100%" height={420}>
                     <BarChart data={ANN} layout="vertical" margin={{left:4}}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#181818" horizontal={false}/>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#0d2030" horizontal={false}/>
                       <XAxis type="number" tick={{fill:MU,fontSize:10}}/>
                       <YAxis dataKey="sh" type="category" width={90} interval={0} tick={{fill:MU,fontSize:9}}/>
                       <Tooltip content={<AnnProjTip/>}/>
@@ -393,27 +393,27 @@ export default function App(){
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:14}}>
               <CardHead title="Annual Breakdown" sub="— = N/A or pre-launch" onDl={()=>dlCSV(ANN.map(p=>({...p,tot:(p.y4||0)+(p.y5||0)+(p.y6||0)})),[{key:"name",label:"Project"},{key:"dev",label:"Developer"},{key:"y4",label:"2024"},{key:"y5",label:"2025"},{key:"y6",label:"1H 2026"},{key:"tot",label:"Total"}],"annual_breakdown")} dlLabel="Export CSV"/>
               <table style={{width:"100%",borderCollapse:"collapse"}}>
-                <thead style={{background:"#0a0a0a"}}><tr>{["#","Project","Developer","2024","2025","1H 2026","Total","Trend"].map(h=><th key={h} style={{padding:"9px 12px",color:MU,fontSize:10,textTransform:"uppercase",letterSpacing:1,textAlign:"left"}}>{h}</th>)}</tr></thead>
+                <thead style={{background:"#011a2a"}}><tr>{["#","Project","Developer","2024","2025","1H 2026","Total","Trend"].map(h=><th key={h} style={{padding:"9px 12px",color:MU,fontSize:10,textTransform:"uppercase",letterSpacing:1,textAlign:"left"}}>{h}</th>)}</tr></thead>
                 <tbody>
                   {ANN.map((p,i)=>{
                     const tot=(p.y4||0)+(p.y5||0)+(p.y6||0);
                     const trend=p.y5>0&&p.y4>0?(p.y5>p.y4?"↑ Accel":"↓ Slow"):p.y5>0?"→ Launch":"→ New";
                     const tc=trend.startsWith("↑")?GR:trend.startsWith("↓")?RE:BL;
-                    return (<tr key={i} style={{borderBottom:"1px solid #161616",background:p.dev==="Exsim"?"#161000":i%2===0?"transparent":"#0c0c0c"}}>
+                    return (<tr key={i} style={{borderBottom:"1px solid #0d2030",background:p.dev==="Exsim"?"#001a14":i%2===0?"transparent":"#020e18"}}>
                       <td style={td({color:MU,fontSize:11})}>{i+1}</td>
                       <td style={td({color:p.dev==="Exsim"?G:TX,fontWeight:p.dev==="Exsim"?700:400,fontSize:12})}>{p.name}{p.dev==="Exsim"?" ★":""}</td>
                       <td style={td({color:MU,fontSize:12})}>{p.dev}</td>
                       <td style={td({color:p.y4?BL:MU,fontWeight:p.y4?700:400})}>{p.y4||"—"}</td>
                       <td style={td({color:p.y5?G:MU,fontWeight:p.y5?700:400})}>{p.y5||"—"}</td>
                       <td style={td({color:p.y6?GR:MU,fontWeight:p.y6?700:400})}>{p.y6||"—"}</td>
-                      <td style={td({color:"#fff",fontWeight:700})}>{tot||"—"}</td>
+                      <td style={td({color:TX,fontWeight:700})}>{tot||"—"}</td>
                       <td style={td()}><Badge color={tc} text={trend}/></td>
                     </tr>);
                   })}
-                  <tr style={{background:"#141000",borderTop:"1px solid "+G+"33"}}>
+                  <tr style={{background:"#001814",borderTop:"1px solid "+G+"33"}}>
                     <td colSpan={3} style={td({color:G,fontWeight:700,fontSize:12})}>Market Total</td>
                     <td style={td({color:BL,fontWeight:700})}>386</td><td style={td({color:G,fontWeight:700})}>1,884</td>
-                    <td style={td({color:GR,fontWeight:700})}>1,406</td><td style={td({color:"#fff",fontWeight:700})}>3,676</td><td/>
+                    <td style={td({color:GR,fontWeight:700})}>1,406</td><td style={td({color:TX,fontWeight:700})}>3,676</td><td/>
                   </tr>
                 </tbody>
               </table>
@@ -423,7 +423,7 @@ export default function App(){
               <div id="ch-monthly" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={430}>
                   <BarChart data={aB} layout="vertical" margin={{left:8}}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#181818" horizontal={false}/>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#0d2030" horizontal={false}/>
                     <XAxis type="number" tick={{fill:MU,fontSize:11}} unit="%"/>
                     <YAxis dataKey="name" type="category" tick={{fill:MU,fontSize:9}} width={190} interval={0}/>
                     <Tooltip content={<AbsTip/>}/>
@@ -436,11 +436,11 @@ export default function App(){
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden"}}>
               <CardHead title="Absorption Detail & Sell-Out Projection" onDl={()=>dlCSV([...en].sort((a,b)=>b.monthly-a.monthly).map(p=>({...p,sl:p.so<=0?"Sold Out":`~${p.so} mo.`})),[{key:"name",label:"Project"},{key:"dev",label:"Developer"},{key:"launch",label:"Launch"},{key:"units",label:"Units"},{key:"sold",label:"Sold"},{key:"rem",label:"Remaining"},{key:"monthly",label:"Monthly %"},{key:"sl",label:"Est. Sell-Out"}],"sellout")} dlLabel="Export CSV"/>
               <table style={{width:"100%",borderCollapse:"collapse"}}>
-                <thead style={{background:"#0a0a0a"}}><tr>{["Project","Developer","Launch","Units","Sold","Rem.","Monthly","Est. Sell-Out"].map(h=><th key={h} style={{padding:"9px 12px",color:MU,fontSize:10,textTransform:"uppercase",letterSpacing:1,textAlign:"left"}}>{h}</th>)}</tr></thead>
+                <thead style={{background:"#011a2a"}}><tr>{["Project","Developer","Launch","Units","Sold","Rem.","Monthly","Est. Sell-Out"].map(h=><th key={h} style={{padding:"9px 12px",color:MU,fontSize:10,textTransform:"uppercase",letterSpacing:1,textAlign:"left"}}>{h}</th>)}</tr></thead>
                 <tbody>{[...en].sort((a,b)=>b.monthly-a.monthly).map((p,i)=>{
                   const sl=p.monthly<=0?"N/A":p.so<=0?"Sold Out":`~${p.so} mo.`;
                   const sc2=p.so<=0?GR:p.so<=12?G:RE;
-                  return (<tr key={i} style={{borderBottom:"1px solid #161616",background:p.dev==="Exsim"?"#161000":i%2===0?"transparent":"#0c0c0c"}}>
+                  return (<tr key={i} style={{borderBottom:"1px solid #0d2030",background:p.dev==="Exsim"?"#001a14":i%2===0?"transparent":"#020e18"}}>
                     <td style={td({color:p.dev==="Exsim"?G:TX,fontWeight:p.dev==="Exsim"?700:400,fontSize:12})}>{p.name}</td>
                     <td style={td({color:MU,fontSize:12})}>{p.dev}</td>
                     <td style={td({color:MU})}>{p.launch}</td>
@@ -466,12 +466,12 @@ export default function App(){
                   <div style={{fontSize:15,fontWeight:700,color:c,marginBottom:12}}>{p.name}</div>
                   <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
                     {[["Total Units",p.units],["Units Sold",p.sold],["Sales Rate",pct(p.rate)],["Monthly Abs.",`${p.monthly}%`],["PSF Range",`RM ${p.psfMin}–${p.psfMax}`],["Completion",p.comp]].map(([l,v],j)=>(
-                      <div key={j} style={{background:"#0a0a0a",borderRadius:6,padding:"8px 10px",border:"1px solid #1a1a1a"}}><div style={{fontSize:10,color:MU,marginBottom:2}}>{l}</div><div style={{fontSize:13,fontWeight:600,color:TX}}>{v}</div></div>
+                      <div key={j} style={{background:"#021828",borderRadius:6,padding:"8px 10px",border:"1px solid #0d2030"}}><div style={{fontSize:10,color:MU,marginBottom:2}}>{l}</div><div style={{fontSize:13,fontWeight:600,color:TX}}>{v}</div></div>
                     ))}
                   </div>
                   <div style={{marginTop:14}}>
                     <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:MU,marginBottom:5}}><span>Take-Up Progress</span><span style={{color:rc(p.rate),fontWeight:700}}>{pct(p.rate)}</span></div>
-                    <div style={{height:7,background:"#1e1e1e",borderRadius:4}}><div style={{height:"100%",width:`${p.rate}%`,background:c,borderRadius:4}}/></div>
+                    <div style={{height:7,background:"#0d2030",borderRadius:4}}><div style={{height:"100%",width:`${p.rate}%`,background:c,borderRadius:4}}/></div>
                   </div>
                 </div>
               );})}
@@ -481,12 +481,12 @@ export default function App(){
               <div id="ch-bench" style={{padding:"14px 18px"}}>
                 <ResponsiveContainer width="100%" height={200}>
                   <BarChart data={[{n:"Market Low",v:0.2},{n:"Market Avg",v:parseFloat(avgR)},{n:"Market Top",v:99.83},...exsim.map(p=>({n:p.name.replace(" Suites","").replace("The ",""),v:p.rate}))]}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#181818"/>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#0d2030"/>
                     <XAxis dataKey="n" tick={{fill:MU,fontSize:10}}/>
                     <YAxis tick={{fill:MU,fontSize:11}} unit="%"/>
                     <Tooltip content={<BenchTip/>}/>
                     <Bar dataKey="v" radius={[4,4,0,0]}>
-                      <Cell fill="#2a2a2a"/><Cell fill="#333"/><Cell fill={GR}/>
+                      <Cell fill="#0d2030"/><Cell fill="#1a3a4a"/><Cell fill={GR}/>
                       {exsim.map((_,i)=><Cell key={i} fill={G}/>)}
                     </Bar>
                   </BarChart>
@@ -494,7 +494,7 @@ export default function App(){
               </div>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
-              <div style={{background:"#0a160a",border:"1px solid #1a381a",borderRadius:10,padding:16}}>
+              <div style={{background:"#001a14",border:"1px solid #1a3828",borderRadius:10,padding:16}}>
                 <div style={{fontSize:12,fontWeight:600,color:GR,marginBottom:8}}>✅ Strengths</div>
                 <ul style={{margin:0,paddingLeft:16,color:MU,fontSize:12,lineHeight:1.9}}>
                   <li><strong style={{color:TX}}>Noordinz Suites</strong> — 99.83% take-up, near-complete sellout</li>
@@ -503,7 +503,7 @@ export default function App(){
                   <li>All 3 projects at or above market average</li>
                 </ul>
               </div>
-              <div style={{background:"#160a0a",border:"1px solid #381a1a",borderRadius:10,padding:16}}>
+              <div style={{background:"#1a0808",border:"1px solid #381a1a",borderRadius:10,padding:16}}>
                 <div style={{fontSize:12,fontWeight:600,color:RE,marginBottom:8}}>⚠ Watch Points</div>
                 <ul style={{margin:0,paddingLeft:16,color:MU,fontSize:12,lineHeight:1.9}}>
                   <li><strong style={{color:TX}}>Keeperz Suites</strong> — only 1 unit in 1H 2026</li>
@@ -566,7 +566,7 @@ export default function App(){
                 return (<div key={i} style={{background:CD,border:"1px solid "+BD,borderRadius:10,padding:14}}>
                   <div style={{fontSize:11,fontWeight:600,color:c,marginBottom:6}}>{zone}</div>
                   <div style={{fontSize:11,color:MU,marginBottom:6}}>{d.ps.length} project{d.ps.length>1?"s":""} · {d.u.toLocaleString()} units</div>
-                  <div style={{height:5,background:"#1e1e1e",borderRadius:3,marginBottom:6}}><div style={{height:"100%",width:`${Math.min(r,100)}%`,background:c,borderRadius:3}}/></div>
+                  <div style={{height:5,background:"#0d2030",borderRadius:3,marginBottom:6}}><div style={{height:"100%",width:`${Math.min(r,100)}%`,background:c,borderRadius:3}}/></div>
                   <div style={{fontSize:12,color:rc(r),fontWeight:700,marginBottom:6}}>{r.toFixed(1)}% take-up</div>
                   <div style={{fontSize:10,color:MU,lineHeight:1.7}}>{d.ps.slice(0,3).join(", ")}{d.ps.length>3?` +${d.ps.length-3} more`:""}</div>
                 </div>);
@@ -587,13 +587,13 @@ export default function App(){
                 </div>
                 <ResponsiveContainer width="100%" height={360}>
                   <ScatterChart margin={{top:10,right:40,bottom:30,left:20}}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#181818"/>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#0d2030"/>
                     <XAxis dataKey="x" type="number" name="Size" unit=" sf" domain={[200,3200]} tick={{fill:MU,fontSize:11}} label={{value:"Avg Unit Size (sq ft)",position:"insideBottom",offset:-15,fill:MU,fontSize:11}}/>
                     <YAxis dataKey="y" type="number" name="PSF" domain={[700,2400]} tick={{fill:MU,fontSize:11}} tickFormatter={v=>`RM ${v}`} label={{value:"RM PSF",angle:-90,position:"insideLeft",fill:MU,fontSize:11}}/>
                     <ZAxis dataKey="z" range={[60,700]}/>
                     <Tooltip content={<ScatTip/>}/>
-                    <ReferenceLine x={900} stroke="#222" strokeDasharray="4 4" label={{value:"← Compact | Spacious →",fill:"#333",fontSize:9,position:"top"}}/>
-                    <ReferenceLine y={1300} stroke="#222" strokeDasharray="4 4" label={{value:"↑ Premium",fill:"#333",fontSize:9,position:"right"}}/>
+                    <ReferenceLine x={900} stroke="#1a3a4a" strokeDasharray="4 4" label={{value:"← Compact | Spacious →",fill:"#2a5060",fontSize:9,position:"top"}}/>
+                    <ReferenceLine y={1300} stroke="#1a3a4a" strokeDasharray="4 4" label={{value:"↑ Premium",fill:"#2a5060",fontSize:9,position:"right"}}/>
                     <Scatter name="Other Developers" data={scO} fill={BL} fillOpacity={0.65}/>
                     <Scatter name="Exsim Projects" data={scE} fill={G} fillOpacity={0.95}/>
                   </ScatterChart>
@@ -601,14 +601,14 @@ export default function App(){
               </div>
               <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,margin:"0 18px 18px"}}>
                 {[{q:"🏢 Compact Premium",d:"Small, high-PSF. Investor & yield appeal.",c:G},{q:"🌟 Spacious Premium",d:"Large luxury. HNW segment.",c:G2},{q:"💰 Compact Value",d:"Affordable compact. High volume.",c:BL},{q:"🏡 Spacious Value",d:"Large but accessible. Owner-occ.",c:GR}].map((q,i)=>(
-                  <div key={i} style={{background:"#0a0a0a",borderRadius:8,padding:"10px 12px",border:"1px solid #1a1a1a"}}>
+                  <div key={i} style={{background:"#021828",borderRadius:8,padding:"10px 12px",border:"1px solid #0d2030"}}>
                     <div style={{fontSize:11,fontWeight:600,color:q.c,marginBottom:4}}>{q.q}</div>
                     <div style={{fontSize:10,color:MU,lineHeight:1.6}}>{q.d}</div>
                   </div>
                 ))}
               </div>
             </div>
-            <div style={{background:"#0e0900",border:"1px solid "+G+"22",borderRadius:10,padding:16}}>
+            <div style={{background:"#001a14",border:"1px solid "+G+"22",borderRadius:10,padding:16}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
                 <div style={{fontSize:13,fontWeight:600,color:G}}>📊 Exsim Positioning Insight</div>
                 <DBtn onClick={()=>dlCSV(exsim.map(p=>({name:p.name,sfMid:p.sfMid,psfMid:p.psfMid,quad:p.sfMid>900&&p.psfMid>1300?"Spacious Premium":p.sfMid<=900&&p.psfMid>1300?"Compact Premium":p.sfMid>900?"Spacious Value":"Compact Value",rate:p.rate})),[{key:"name",label:"Project"},{key:"sfMid",label:"Avg SF"},{key:"psfMid",label:"Avg PSF"},{key:"quad",label:"Quadrant"},{key:"rate",label:"Sales Rate %"}],"exsim_positioning")} label="Export CSV"/>
@@ -616,7 +616,7 @@ export default function App(){
               <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12}}>
                 {exsim.map((p,i)=>{
                   const quad=p.sfMid>900&&p.psfMid>1300?"Spacious Premium":p.sfMid<=900&&p.psfMid>1300?"Compact Premium":p.sfMid>900?"Spacious Value":"Compact Value";
-                  return (<div key={i} style={{background:"#141000",borderRadius:8,padding:12,border:"1px solid "+G+"22"}}>
+                  return (<div key={i} style={{background:"#001814",borderRadius:8,padding:12,border:"1px solid "+G+"22"}}>
                     <div style={{fontSize:12,fontWeight:700,color:G,marginBottom:4}}>{p.name}</div>
                     <div style={{fontSize:11,color:MU,marginBottom:6}}>Avg {p.sfMid.toLocaleString()} sf · RM {p.psfMid.toLocaleString()} psf</div>
                     <div style={{fontSize:11,fontWeight:600,color:quad.includes("Premium")?G:BL}}>📍 {quad}</div>
@@ -651,7 +651,7 @@ export default function App(){
                 <div style={{padding:"14px 18px"}}>
                   <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:14}}>
                     {s.proj.map((p,i)=>(
-                      <div key={i} style={{background:"#0a0a0a",borderRadius:8,padding:"10px 14px",border:"1px solid "+(p.dev==="Exsim"?G+"33":"#1a1a1a"),display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                      <div key={i} style={{background:"#021828",borderRadius:8,padding:"10px 14px",border:"1px solid "+(p.dev==="Exsim"?G+"33":"#0d2030"),display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                         <div>
                           <div style={{fontSize:12,fontWeight:p.dev==="Exsim"?700:400,color:p.dev==="Exsim"?G:TX}}>{p.name}{p.dev==="Exsim"?" ★":""}</div>
                           <div style={{fontSize:10,color:MU,marginTop:2}}>{fmt(p.pMin)} – {fmt(p.pMax)} · {p.units} units</div>
@@ -670,14 +670,14 @@ export default function App(){
                 </div>
               </div>
             ))}
-            <div style={{background:"#080e18",border:"1px solid #101e30",borderRadius:10,overflow:"hidden"}}>
-              <div style={{padding:"14px 18px",borderBottom:"1px solid #101e30",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <div style={{background:"#021828",border:"1px solid #0d2840",borderRadius:10,overflow:"hidden"}}>
+              <div style={{padding:"14px 18px",borderBottom:"1px solid #0d2840",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                 <div style={{fontSize:13,fontWeight:600,color:BL}}>🎯 Exsim Segment Strategy</div>
                 <DBtn onClick={()=>dlCSV([{name:"Noordinz Suites",seg:"Entry Luxury",note:"99.83% sold. Consider higher ASP on future phases."},{name:"The Lighthauz",seg:"Mid Luxury",note:"469 units absorbed 2025–1H26. Differentiate via design."},{name:"Keeperz Suites",seg:"Entry–Mid Luxury",note:"Launched at RM 1,723 max PSF. Lead with investor-yield narrative."}],[{key:"name",label:"Project"},{key:"seg",label:"Segment"},{key:"note",label:"Strategy Note"}],"exsim_strategy")} label="Export CSV"/>
               </div>
               <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,padding:16}}>
                 {[{name:"Noordinz Suites",seg:"Entry Luxury",note:"99.83% sold — validates strong sub-RM 1M demand. Consider higher ASP on future phases.",c:GR},{name:"The Lighthauz",seg:"Mid Luxury",note:"469 units absorbed 2025–1H26. Differentiate via design and lifestyle programming.",c:G},{name:"Keeperz Suites",seg:"Entry–Mid Luxury",note:"Launched at highest Exsim PSF (RM 1,723 max). Lead with investor-yield narrative.",c:BL}].map((item,i)=>(
-                  <div key={i} style={{background:"#0c1420",borderRadius:8,padding:14,border:"1px solid #101e30"}}>
+                  <div key={i} style={{background:"#021828",borderRadius:8,padding:14,border:"1px solid #0d2840"}}>
                     <div style={{fontSize:12,fontWeight:700,color:G,marginBottom:2}}>{item.name}</div>
                     <div style={{fontSize:10,color:item.c,marginBottom:8,fontWeight:600}}>{item.seg}</div>
                     <div style={{fontSize:11,color:MU,lineHeight:1.7}}>{item.note}</div>
