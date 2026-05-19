@@ -19,9 +19,9 @@ const CRD={"Noordinz Suites":{x:367,y:128},"Queens Residences Q3":{x:320,y:217},
 const ZMAP={"Tanjung Tokong/North":["The Lume","Maris","Westin Residences","The Crown","Avea"],"Georgetown/Gurney":["Noordinz Suites","G'Vinton","Lumina Residence","The Anton","Scott @ Logan","The Lighthauz","Keeperz Suites"],"Jelutong/Gelugor":["Alton Skyvillas","Setia SV2","Lightwater Residences"],"Bayan Lepas":["Queens Residences Q3","Avion","Bayan Suite"]};
 const ZC={"Tanjung Tokong/North":G,"Georgetown/Gurney":BL,"Jelutong/Gelugor":GR,"Bayan Lepas":RE};
 const gz=n=>{for(const[z,ns]of Object.entries(ZMAP))if(ns.includes(n))return z;return"Georgetown/Gurney";};
-const TABS=["Overview","Sales Performance","Pricing","Absorption Rate","Developer Spotlight","Location Map","Value Positioning","Buyer Segments"];
+const TABS=["Overview","Sales Performance","Pricing","Absorption Rate","Location Map","Value Positioning","Buyer Segments"];
 const PERF_LEGEND=[{c:GR,l:"≥75% Take-Up"},{c:BL,l:"40–74% Take-Up"},{c:RE,l:"<40% Take-Up"}];
-const ANN_LEGEND=[{c:BL,l:"2024"},{c:GR,l:"2025"},{c:G,l:"1H 2026"}];
+const ANN_LEGEND=[{c:BL,l:"2024"},{c:G,l:"2025"},{c:GR,l:"1H 2026"}];
 const MONTHLY_LEGEND=[{c:GR,l:"≥3%/month"},{c:BL,l:"1–3%/month"},{c:RE,l:"<1%/month"}];
 
 function Badge({color,text}){
@@ -96,10 +96,6 @@ function AbsTip({active,payload}){
   const d=payload[0].payload;
   return (<Tip name={d.full} dev={d.dev} rows={[{label:"Monthly Abs",v:`${d.v}%`,c:GR}]} />);
 }
-function BenchTip({active,payload,label}){
-  if(!active||!payload||!payload.length) return null;
-  return (<Tip name={label} dev={null} rows={[{label:"Sales Rate",v:`${payload[0].value}%`,c:G}]} />);
-}
 function ScatTip({active,payload}){
   if(!active||!payload||!payload.length) return null;
   const d=payload[0].payload;
@@ -144,7 +140,6 @@ export default function App(){
     return{...p,mo,sold,monthly,psfMid:Math.round((p.psfMin+p.psfMax)/2),sfMid:Math.round((p.sfMin+p.sfMax)/2),rem:p.units-sold,so:monthly>0?Math.ceil((100-p.rate)/monthly):999,zone:gz(p.name)};
   }),[]);
 
-  const spotlight=en.filter(p=>p.dev==="Exsim");
   const avgR=(ACTIVE.reduce((s,p)=>s+p.rate,0)/ACTIVE.length).toFixed(1);
   const avgM=(en.reduce((s,p)=>s+p.monthly,0)/en.length).toFixed(2);
   const sorted=[...en].sort((a,b)=>{const av=a[sc],bv=b[sc];if(typeof av==="string")return sd==="desc"?bv.localeCompare(av):av.localeCompare(bv);return sd==="desc"?bv-av:av-bv;});
@@ -383,7 +378,7 @@ export default function App(){
                       <XAxis dataKey="p" tick={{fill:MU,fontSize:11}}/>
                       <YAxis tick={{fill:MU,fontSize:11}}/>
                       <Tooltip content={<AnnTotTip/>}/>
-                      <Bar dataKey="u" radius={[4,4,0,0]}><Cell fill={BL}/><Cell fill={G}/><Cell fill={GR}/></Bar>
+                      <Bar dataKey="u" radius={[4,4,0,0]} label={({x,y,width,value})=><text x={x+width/2} y={y-5} fill={TX} textAnchor="middle" fontSize={11} fontWeight="600">{value.toLocaleString()}</text>}><Cell fill={BL}/><Cell fill={G}/><Cell fill={GR}/></Bar>
                     </BarChart>
                   </ResponsiveContainer>
                   <div style={{marginTop:12,display:"flex",flexDirection:"column",gap:6}}>
@@ -481,67 +476,6 @@ export default function App(){
                   </tr>);
                 })}</tbody>
               </table>
-            </div>
-          </div>
-        )}
-
-        {/* ── DEVELOPER SPOTLIGHT ── */}
-        {tab==="Developer Spotlight" && (
-          <div>
-            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:14,marginBottom:16}}>
-              {spotlight.map((p,i)=>{const c=[G,GR,BL][i];return(
-                <div key={i} style={{background:CD,border:"1px solid "+BD,borderRadius:12,padding:18,borderTop:"3px solid "+c}}>
-                  <div style={{fontSize:10,color:MU,letterSpacing:2,textTransform:"uppercase",marginBottom:6}}>{p.dev}</div>
-                  <div style={{fontSize:15,fontWeight:700,color:c,marginBottom:12}}>{p.name}</div>
-                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-                    {[["Total Units",p.units],["Units Sold",p.sold],["Sales Rate",pct(p.rate)],["Monthly Abs.",`${p.monthly}%`],["PSF Range",`RM ${p.psfMin}–${p.psfMax}`],["Completion",p.comp]].map(([l,v],j)=>(
-                      <div key={j} style={{background:"#F6F8F7",borderRadius:6,padding:"8px 10px",border:"1px solid "+BD}}><div style={{fontSize:10,color:MU,marginBottom:2}}>{l}</div><div style={{fontSize:13,fontWeight:600,color:TX}}>{v}</div></div>
-                    ))}
-                  </div>
-                  <div style={{marginTop:14}}>
-                    <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:MU,marginBottom:5}}><span>Take-Up Progress</span><span style={{color:rc(p.rate),fontWeight:700}}>{pct(p.rate)}</span></div>
-                    <div style={{height:7,background:"#DDE4E2",borderRadius:4}}><div style={{height:"100%",width:`${p.rate}%`,background:c,borderRadius:4}}/></div>
-                  </div>
-                </div>
-              );})}
-            </div>
-            <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:14}}>
-              <CardHead title="Developer vs Market Benchmarks" onDl={()=>dlPNG("ch-bench","dev_benchmark",[{c:"#DDE4E2",l:"Market Low"},{c:"#AAC0BC",l:"Market Avg"},{c:GR,l:"Market Top"},{c:G,l:"Spotlight Projects"}])} dlLabel="Download PNG"/>
-              <div id="ch-bench" style={{padding:"14px 18px"}}>
-                <ResponsiveContainer width="100%" height={200}>
-                  <BarChart data={[{n:"Market Low",v:0.2},{n:"Market Avg",v:parseFloat(avgR)},{n:"Market Top",v:99.83},...spotlight.map(p=>({n:p.name.replace(" Suites","").replace("The ",""),v:p.rate}))]}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#DDE4E2"/>
-                    <XAxis dataKey="n" tick={{fill:MU,fontSize:10}}/>
-                    <YAxis tick={{fill:MU,fontSize:11}} unit="%"/>
-                    <Tooltip content={<BenchTip/>}/>
-                    <Bar dataKey="v" radius={[4,4,0,0]}>
-                      <Cell fill="#DDE4E2"/><Cell fill="#AAC0BC"/><Cell fill={GR}/>
-                      {spotlight.map((_,i)=><Cell key={i} fill={G}/>)}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-              <LegendRow items={[{c:"#DDE4E2",l:"Market Low"},{c:"#AAC0BC",l:"Market Avg"},{c:GR,l:"Market Top"},{c:G,l:"Spotlight Projects"}]}/>
-            </div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
-              <div style={{background:"#F0FAF5",border:"1px solid #B8DECE",borderRadius:10,padding:16}}>
-                <div style={{fontSize:12,fontWeight:600,color:GR,marginBottom:8}}>✅ Strengths</div>
-                <ul style={{margin:0,paddingLeft:16,color:MU,fontSize:12,lineHeight:1.9}}>
-                  <li><strong style={{color:TX}}>Noordinz Suites</strong> — 99.83% take-up, near-complete sellout</li>
-                  <li><strong style={{color:TX}}>The Lighthauz</strong> — 469 units absorbed 2025–1H26</li>
-                  <li>Premium PSF up to RM 1,723 psf</li>
-                  <li>All 3 projects at or above market average</li>
-                </ul>
-              </div>
-              <div style={{background:"#FDF2F2",border:"1px solid #E8B8B8",borderRadius:10,padding:16}}>
-                <div style={{fontSize:12,fontWeight:600,color:RE,marginBottom:8}}>⚠ Watch Points</div>
-                <ul style={{margin:0,paddingLeft:16,color:MU,fontSize:12,lineHeight:1.9}}>
-                  <li><strong style={{color:TX}}>Keeperz Suites</strong> — only 1 unit in 1H 2026</li>
-                  <li>3 concurrent projects may dilute buyer attention</li>
-                  <li>E&O Maris and Westin targeting same segment</li>
-                  <li>9 market projects below 60% — rising competition</li>
-                </ul>
-              </div>
             </div>
           </div>
         )}
