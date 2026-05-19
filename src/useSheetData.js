@@ -58,7 +58,9 @@ const CONFIGURED = url => url && !url.startsWith("PASTE_");
 function fetchWithTimeout(url, ms = 10000) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), ms);
-  return fetch(url, { signal: ctrl.signal })
+  // Append timestamp to bypass browser/CDN cache (Google's server cache still takes ~5-10 min).
+  const bust = `${url}&_=${Date.now()}`;
+  return fetch(bust, { signal: ctrl.signal, cache: "no-store" })
     .then(r => r.text())
     .finally(() => clearTimeout(timer));
 }
