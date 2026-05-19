@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ScatterChart, Scatter, ZAxis, ReferenceLine } from "recharts";
+import { useSheetData } from "./useSheetData";
 
 const G="#C9A84C",G2="#E8D080",DK="#0B0B0B",CD="#131313",BD="#222",
   TX="#E0E0E0",MU="#555",GR="#52B87A",RE="#E06060",BL="#5B9BD5";
@@ -10,7 +11,7 @@ const rc=r=>r>=75?GR:r>=40?G:RE;
 const MONTHS={2023:30,2024:18,2025:6,2026:2};
 const td=(extra={})=>({padding:"9px 12px",...extra});
 
-const ACTIVE=[
+const FALLBACK_ACTIVE=[
   {no:1,dev:"Exsim",name:"Noordinz Suites",units:603,sfMin:550,sfMax:1100,psfMin:937,psfMax:1080,pMin:593800,pMax:1031100,launch:2023,comp:"Q3 2027",rate:99.83},
   {no:2,dev:"Ideal",name:"Queens Residences Q3",units:532,sfMin:950,sfMax:1400,psfMin:908,psfMax:2068,pMin:862200,pMax:2894760,launch:2023,comp:"Q4 2027",rate:56.95},
   {no:3,dev:"E&O",name:"The Lume",units:261,sfMin:1722,sfMax:2874,psfMin:970,psfMax:1329,pMin:1670100,pMax:3820000,launch:2024,comp:"Q1 2029",rate:73.18},
@@ -30,8 +31,8 @@ const ACTIVE=[
   {no:17,dev:"Rackson",name:"Avion",units:608,sfMin:488,sfMax:1328,psfMin:882,psfMax:922,pMin:430578,pMax:1224000,launch:2024,comp:"Q1 2027",rate:78.78},
   {no:18,dev:"Seal Inc.",name:"Bayan Suite",units:326,sfMin:592,sfMax:872,psfMin:865,psfMax:973,pMin:511900,pMax:848800,launch:2024,comp:"Q4 2027",rate:49.39},
 ];
-const DONE=[{dev:"IJM",name:"Mezzo",units:456,psfMin:1016,psfMax:1045,rate:50.22},{dev:"YTL",name:"Shorefront",units:115,psfMin:996,psfMax:1319,rate:100}];
-const ANN=[
+const FALLBACK_DONE=[{dev:"IJM",name:"Mezzo",units:456,psfMin:1016,psfMax:1045,rate:50.22},{dev:"YTL",name:"Shorefront",units:115,psfMin:996,psfMax:1319,rate:100}];
+const FALLBACK_ANN=[
   {sh:"Queens Q3",name:"Queens Residences Q3",y4:76,y5:151,y6:76,dev:"Ideal"},
   {sh:"The Lume",name:"The Lume",y4:48,y5:95,y6:48,dev:"E&O"},
   {sh:"Maris",name:"Maris",y4:0,y5:205,y6:103,dev:"E&O"},
@@ -49,7 +50,7 @@ const ANN=[
   {sh:"Avion",name:"Avion",y4:120,y5:239,y6:120,dev:"Rackson"},
   {sh:"Bayan Suite",name:"Bayan Suite",y4:0,y5:107,y6:54,dev:"Seal Inc."},
 ];
-const ATOT=[{p:"2024",u:386},{p:"2025",u:1884},{p:"1H 2026",u:1406}];
+const FALLBACK={active:FALLBACK_ACTIVE,annual:FALLBACK_ANN,completed:FALLBACK_DONE};
 const CRD={"Noordinz Suites":{x:367,y:128},"Queens Residences Q3":{x:320,y:217},"The Lume":{x:328,y:62},"Maris":{x:342,y:70},"Westin Residences":{x:315,y:78},"G'Vinton":{x:355,y:97},"Lumina Residence":{x:350,y:104},"The Anton":{x:308,y:104},"The Crown":{x:303,y:64},"Scott @ Logan":{x:333,y:116},"Alton Skyvillas":{x:332,y:149},"Lightwater Residences":{x:335,y:175},"The Lighthauz":{x:344,y:110},"Avea":{x:352,y:75},"Setia SV2":{x:317,y:140},"Keeperz Suites":{x:363,y:122},"Avion":{x:233,y:267},"Bayan Suite":{x:322,y:196}};
 const ZMAP={"Tanjung Tokong/North":["The Lume","Maris","Westin Residences","The Crown","Avea"],"Georgetown/Gurney":["Noordinz Suites","G'Vinton","Lumina Residence","The Anton","Scott @ Logan","The Lighthauz","Keeperz Suites"],"Jelutong/Gelugor":["Alton Skyvillas","Setia SV2","Lightwater Residences"],"Bayan Lepas":["Queens Residences Q3","Avion","Bayan Suite"]};
 const ZC={"Tanjung Tokong/North":G,"Georgetown/Gurney":BL,"Jelutong/Gelugor":GR,"Bayan Lepas":RE};
@@ -148,6 +149,32 @@ export default function App(){
   const[sc,setSc]=useState("rate");
   const[sd,setSd]=useState("desc");
   const[hov,setHov]=useState(null);
+
+  const{data,loading,error}=useSheetData(FALLBACK);
+  const ACTIVE   = data?.active    ?? [];
+  const ANN      = data?.annual    ?? [];
+  const DONE     = data?.completed ?? [];
+  // Derive annual market totals from ANN rows rather than hardcoding them.
+  const ATOT = useMemo(()=>[
+    {p:"2024",   u:ANN.reduce((s,r)=>s+(r.y4||0),0)},
+    {p:"2025",   u:ANN.reduce((s,r)=>s+(r.y5||0),0)},
+    {p:"1H 2026",u:ANN.reduce((s,r)=>s+(r.y6||0),0)},
+  ],[ANN]);
+
+  if(loading) return (
+    <div style={{background:DK,minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:16}}>
+      <div style={{width:40,height:40,border:"3px solid "+BD,borderTop:"3px solid "+G,borderRadius:"50%",animation:"spin 0.9s linear infinite"}}/>
+      <div style={{color:MU,fontSize:13}}>Loading data from Google Sheets…</div>
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+    </div>
+  );
+  if(error) return (
+    <div style={{background:DK,minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:12,padding:32}}>
+      <div style={{fontSize:22,color:RE}}>⚠ Failed to load sheet data</div>
+      <div style={{color:MU,fontSize:13,maxWidth:480,textAlign:"center"}}>{error}</div>
+      <div style={{color:MU,fontSize:12,marginTop:8}}>Check that your Google Sheet URLs in <code style={{color:G}}>src/config.js</code> are correct and the sheets are published.</div>
+    </div>
+  );
 
   const en=useMemo(()=>ACTIVE.map(p=>{
     const mo=MONTHS[p.launch]||6,sold=Math.round(p.units*p.rate/100),monthly=parseFloat((p.rate/mo).toFixed(2));
