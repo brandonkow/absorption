@@ -114,31 +114,15 @@ export default function App(){
   const[sd,setSd]=useState("desc");
   const[hov,setHov]=useState(null);
 
-  const{data,loading,error}=useSheetData(FALLBACK);
-  const ACTIVE   = data?.active    ?? [];
-  const ANN      = data?.annual    ?? [];
-  const DONE     = data?.completed ?? [];
-  // Derive annual market totals from ANN rows rather than hardcoding them.
-  const ATOT = useMemo(()=>[
+  const{data,syncing,syncError}=useSheetData(FALLBACK);
+  const ACTIVE = data.active    ?? [];
+  const ANN    = data.annual    ?? [];
+  const DONE   = data.completed ?? [];
+  const ATOT   = useMemo(()=>[
     {p:"2024",   u:ANN.reduce((s,r)=>s+(r.y4||0),0)},
     {p:"2025",   u:ANN.reduce((s,r)=>s+(r.y5||0),0)},
     {p:"1H 2026",u:ANN.reduce((s,r)=>s+(r.y6||0),0)},
   ],[ANN]);
-
-  if(loading) return (
-    <div style={{background:DK,minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:16}}>
-      <div style={{width:40,height:40,border:"3px solid "+BD,borderTop:"3px solid "+G,borderRadius:"50%",animation:"spin 0.9s linear infinite"}}/>
-      <div style={{color:MU,fontSize:13}}>Loading data from Google Sheets…</div>
-      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
-    </div>
-  );
-  if(error) return (
-    <div style={{background:DK,minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:12,padding:32}}>
-      <div style={{fontSize:22,color:RE}}>⚠ Failed to load sheet data</div>
-      <div style={{color:MU,fontSize:13,maxWidth:480,textAlign:"center"}}>{error}</div>
-      <div style={{color:MU,fontSize:12,marginTop:8}}>Check that your Google Sheet URLs in <code style={{color:G}}>src/config.js</code> are correct and the sheets are published.</div>
-    </div>
-  );
 
   const en=useMemo(()=>ACTIVE.map(p=>{
     const mo=MONTHS[p.launch]||6,sold=Math.round(p.units*p.rate/100),monthly=parseFloat((p.rate/mo).toFixed(2));
@@ -198,6 +182,8 @@ export default function App(){
           <div style={{fontSize:11,color:MU,marginBottom:2}}>Prepared for</div>
           <div style={{fontSize:16,fontWeight:700,color:G}}>Exsim Group</div>
           <div style={{marginTop:8,fontSize:10,background:G+"15",border:"1px solid "+G+"33",borderRadius:20,padding:"3px 14px",color:G,display:"inline-block",letterSpacing:1}}>CONFIDENTIAL</div>
+          {syncing&&<div style={{marginTop:6,fontSize:10,color:MU,display:"flex",alignItems:"center",gap:5,justifyContent:"flex-end"}}><span style={{display:"inline-block",width:7,height:7,borderRadius:"50%",border:"1.5px solid "+MU,borderTopColor:G,animation:"spin 0.9s linear infinite"}}/> Syncing…<style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div>}
+          {syncError&&!syncing&&<div style={{marginTop:6,fontSize:10,color:RE,textAlign:"right"}}>⚠ Offline — showing saved data</div>}
         </div>
       </div>
 

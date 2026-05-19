@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { SHEETS } from "./config";
 
-// Parses a CSV string into an array of objects using the first row as headers.
 function parseCSV(text) {
   const lines = text.trim().split("\n");
   if (lines.length < 2) return [];
@@ -14,7 +13,6 @@ function parseCSV(text) {
   });
 }
 
-// Handles quoted fields (fields containing commas).
 function splitCSVLine(line) {
   const result = [];
   let cur = "", inQ = false;
@@ -28,84 +26,75 @@ function splitCSVLine(line) {
   return result;
 }
 
-const n = v => parseFloat(v) || 0;
-const ni = v => parseInt(v) || 0;
+const n  = v => parseFloat(v) || 0;
+const ni = v => parseInt(v)   || 0;
 
 function parseProjects(rows) {
   return rows.map(r => ({
-    no:     ni(r.no),
-    dev:    r.dev,
-    name:   r.name,
-    units:  ni(r.units),
-    sfMin:  ni(r.sfMin),
-    sfMax:  ni(r.sfMax),
-    psfMin: ni(r.psfMin),
-    psfMax: ni(r.psfMax),
-    pMin:   ni(r.pMin),
-    pMax:   ni(r.pMax),
-    launch: ni(r.launch),
-    comp:   r.comp,
-    rate:   n(r.rate),
+    no: ni(r.no), dev: r.dev, name: r.name,
+    units: ni(r.units), sfMin: ni(r.sfMin), sfMax: ni(r.sfMax),
+    psfMin: ni(r.psfMin), psfMax: ni(r.psfMax),
+    pMin: ni(r.pMin), pMax: ni(r.pMax),
+    launch: ni(r.launch), comp: r.comp, rate: n(r.rate),
   }));
 }
 
 function parseAnnual(rows) {
   return rows.map(r => ({
-    sh:   r.sh,
-    name: r.name,
-    dev:  r.dev,
-    y4:   ni(r.y4),
-    y5:   ni(r.y5),
-    y6:   ni(r.y6),
+    sh: r.sh, name: r.name, dev: r.dev,
+    y4: ni(r.y4), y5: ni(r.y5), y6: ni(r.y6),
   }));
 }
 
 function parseCompleted(rows) {
   return rows.map(r => ({
-    name:   r.name,
-    dev:    r.dev,
-    units:  ni(r.units),
-    psfMin: ni(r.psfMin),
-    psfMax: ni(r.psfMax),
-    rate:   n(r.rate),
+    name: r.name, dev: r.dev, units: ni(r.units),
+    psfMin: ni(r.psfMin), psfMax: ni(r.psfMax), rate: n(r.rate),
   }));
 }
 
 const CONFIGURED = url => url && !url.startsWith("PASTE_");
 
+function fetchWithTimeout(url, ms = 10000) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, { signal: ctrl.signal })
+    .then(r => r.text())
+    .finally(() => clearTimeout(timer));
+}
+
 export function useSheetData(fallback) {
-  const [data, setData]     = useState(null);
-  const [loading, setLoading] = useState(CONFIGURED(SHEETS.projects));
-  const [error, setError]   = useState(null);
+  // Always start with local data — dashboard is visible immediately.
+  const [data, setData]           = useState(fallback);
+  const [syncing, setSyncing]     = useState(CONFIGURED(SHEETS.projects));
+  const [syncError, setSyncError] = useState(null);
 
   useEffect(() => {
-    if (!CONFIGURED(SHEETS.projects)) return; // no URLs set yet — use fallback
+    if (!CONFIGURED(SHEETS.projects)) return;
 
     async function load() {
       try {
-        const fetches = [
-          CONFIGURED(SHEETS.projects)  ? fetch(SHEETS.projects).then(r=>r.text())  : Promise.resolve(""),
-          CONFIGURED(SHEETS.annual)    ? fetch(SHEETS.annual).then(r=>r.text())    : Promise.resolve(""),
-          CONFIGURED(SHEETS.completed) ? fetch(SHEETS.completed).then(r=>r.text()) : Promise.resolve(""),
-        ];
-        const [pTxt, aTxt, cTxt] = await Promise.all(fetches);
+        const [pTxt, aTxt, cTxt] = await Promise.all([
+          CONFIGURED(SHEETS.projects)  ? fetchWithTimeout(SHEETS.projects)  : Promise.resolve(""),
+          CONFIGURED(SHEETS.annual)    ? fetchWithTimeout(SHEETS.annual)    : Promise.resolve(""),
+          CONFIGURED(SHEETS.completed) ? fetchWithTimeout(SHEETS.completed) : Promise.resolve(""),
+        ]);
         setData({
-          active:    pTxt ? parseProjects(parseCSV(pTxt))   : fallback.active,
-          annual:    aTxt ? parseAnnual(parseCSV(aTxt))     : fallback.annual,
-          completed: cTxt ? parseCompleted(parseCSV(cTxt))  : fallback.completed,
+          active:    pTxt ? parseProjects(parseCSV(pTxt))  : fallback.active,
+          annual:    aTxt ? parseAnnual(parseCSV(aTxt))    : fallback.annual,
+          completed: cTxt ? parseCompleted(parseCSV(cTxt)) : fallback.completed,
         });
+        setSyncError(null);
       } catch (e) {
-        setError(e.message);
+        // Fetch failed or timed out — keep showing local data, surface a soft warning.
+        setSyncError("Could not reach Google Sheets — showing last saved data.");
       } finally {
-        setLoading(false);
+        setSyncing(false);
       }
     }
 
     load();
   }, []);
 
-  // If no URLs configured, return the hardcoded fallback immediately.
-  if (!CONFIGURED(SHEETS.projects)) return { data: fallback, loading: false, error: null };
-
-  return { data, loading, error };
+  return { data, loading: false, syncing, syncError };
 }
