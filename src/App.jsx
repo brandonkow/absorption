@@ -3,9 +3,9 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { useSheetData } from "./useSheetData";
 import SHEET_DATA from "./data.json";
 
-const G="#17E88F",G2="#80BBAD",DK="#011E1A",CD="#032E28",BD="#0A5540",
-  TX="#FFFFFF",MU="#7EAAA0",GR="#17E88F",RE="#E05252",BL="#538184";
-const TP={background:"#011E1A",border:"1px solid #0A5540",borderRadius:6,padding:"10px 14px",boxShadow:"0 4px 20px rgba(0,0,0,0.6)",fontSize:12,color:"#fff"};
+const G="#17E88F",G2="#80BBAD",DK="#0C1110",CD="#181E1D",BD="#272F2D",
+  TX="#FFFFFF",MU="#8A9EA0",GR="#17E88F",RE="#E05252",BL="#5B8A8A";
+const TP={background:"#141A19",border:"1px solid #272F2D",borderRadius:6,padding:"10px 14px",boxShadow:"0 4px 20px rgba(0,0,0,0.6)",fontSize:12,color:"#fff"};
 const pct=v=>`${v.toFixed(1)}%`;
 const fmt=v=>v>=1e6?`RM ${(v/1e6).toFixed(2)}M`:`RM ${(v/1e3).toFixed(0)}K`;
 const rc=r=>r>=75?GR:r>=40?BL:RE;
@@ -96,7 +96,7 @@ function MapHover({p,c}){
   const bx=c.x>430?c.x-168:c.x+14,by=c.y>290?c.y-108:c.y-6;
   return (
     <g>
-      <rect x={bx} y={by} width={162} height={100} rx="6" fill="#003F2D" stroke={p.dev==="Exsim"?G:"#2A6050"} strokeWidth="1"/>
+      <rect x={bx} y={by} width={162} height={100} rx="6" fill="#141A19" stroke={p.dev==="Exsim"?G:"#272F2D"} strokeWidth="1"/>
       <text x={bx+10} y={by+15} fill={p.dev==="Exsim"?G:"#FFFFFF"} fontSize="10" fontWeight="bold" fontFamily="sans-serif">{p.name}</text>
       <text x={bx+10} y={by+28} fill="#80BBAD" fontSize="8.5" fontFamily="sans-serif">{p.dev} · {p.comp}</text>
       <text x={bx+10} y={by+42} fill="#CAD1D3" fontSize="8.5" fontFamily="sans-serif">{p.units} units · RM {p.psfMin}–{p.psfMax} psf</text>
@@ -216,7 +216,7 @@ export default function App(){
                 <table style={{width:"100%",borderCollapse:"collapse"}}>
                   <thead style={{background:"#003F2D"}}><tr><SortTh col="no" label="#" sc={sc} sd={sd} fn={ds}/><SortTh col="dev" label="Developer" sc={sc} sd={sd} fn={ds}/><SortTh col="name" label="Project" sc={sc} sd={sd} fn={ds}/><SortTh col="units" label="Units" sc={sc} sd={sd} fn={ds}/><SortTh col="psfMid" label="Avg PSF" sc={sc} sd={sd} fn={ds}/><SortTh col="launch" label="Launch" sc={sc} sd={sd} fn={ds}/><SortTh col="comp" label="Comp." sc={sc} sd={sd} fn={ds}/><SortTh col="rate" label="Sales Rate %" sc={sc} sd={sd} fn={ds}/><SortTh col="sold" label="Sold" sc={sc} sd={sd} fn={ds}/><SortTh col="monthly" label="Monthly Abs." sc={sc} sd={sd} fn={ds}/></tr></thead>
                   <tbody>{sorted.map((p,i)=>(
-                    <tr key={p.no} style={{background:p.dev==="Exsim"?"#062E20":i%2===0?CD:"#022A24",borderBottom:"1px solid "+BD}}>
+                    <tr key={p.no} style={{background:p.dev==="Exsim"?"#0E1F18":i%2===0?CD:"#141A19",borderBottom:"1px solid "+BD}}>
                       <td style={td({color:MU,fontSize:11})}>{p.no}</td>
                       <td style={td({color:p.dev==="Exsim"?G:TX,fontWeight:p.dev==="Exsim"?700:400,fontSize:12})}>{p.dev}{p.dev==="Exsim"?" ★":""}</td>
                       <td style={td({color:TX,fontSize:12})}>{p.name}</td>
@@ -226,7 +226,7 @@ export default function App(){
                       <td style={td({color:MU})}>{p.comp}</td>
                       <td style={td()}>
                         <div style={{display:"flex",alignItems:"center",gap:8}}>
-                          <div style={{flex:1,height:5,background:"#0A5540",borderRadius:3}}><div style={{height:"100%",width:`${Math.min(p.rate,100)}%`,background:rc(p.rate),borderRadius:3}}/></div>
+                          <div style={{flex:1,height:5,background:"#252F2D",borderRadius:3}}><div style={{height:"100%",width:`${Math.min(p.rate,100)}%`,background:rc(p.rate),borderRadius:3}}/></div>
                           <span style={{color:rc(p.rate),fontWeight:600,fontSize:12,minWidth:42}}>{pct(p.rate)}</span>
                         </div>
                       </td>
@@ -244,7 +244,7 @@ export default function App(){
               </div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
                 {DONE.map((p,i)=>(
-                  <div key={i} style={{background:"#022A24",borderRadius:8,padding:"12px 16px",border:"1px solid "+BD}}>
+                  <div key={i} style={{background:"#141A19",borderRadius:8,padding:"12px 16px",border:"1px solid "+BD}}>
                     <div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}><span style={{fontWeight:600,color:TX}}>{p.name}</span><span style={{fontSize:11,color:MU}}>{p.dev}</span></div>
                     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
                       {[["Units",p.units,TX],["PSF",`RM ${p.psfMin}–${p.psfMax}`,TX],["Take-Up",pct(p.rate),rc(p.rate)]].map(([l,v,c],j)=>(
@@ -266,7 +266,7 @@ export default function App(){
               <div id="ch-sales" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={430}>
                   <BarChart data={bD} layout="vertical" margin={{left:8}}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#0A5540" horizontal={false}/>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#252F2D" horizontal={false}/>
                     <XAxis type="number" domain={[0,100]} tick={{fill:MU,fontSize:11}} unit="%"/>
                     <YAxis dataKey="name" type="category" tick={{fill:MU,fontSize:9}} width={190} interval={0}/>
                     <Tooltip content={<BarTip/>}/>
@@ -284,7 +284,7 @@ export default function App(){
                   return (<div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 0",borderBottom:"1px solid "+BD}}>
                     <div style={{width:130,fontSize:12,color:isEx?G:TX,fontWeight:isEx?700:400}}>{dev}{isEx?" ★":""}</div>
                     <div style={{fontSize:11,color:MU,width:55}}>{d.n} proj.</div>
-                    <div style={{flex:1,height:7,background:"#0A5540",borderRadius:4}}><div style={{height:"100%",width:`${Math.min(r,100)}%`,background:isEx?G:rc(r),borderRadius:4}}/></div>
+                    <div style={{flex:1,height:7,background:"#252F2D",borderRadius:4}}><div style={{height:"100%",width:`${Math.min(r,100)}%`,background:isEx?G:rc(r),borderRadius:4}}/></div>
                     <div style={{width:50,textAlign:"right",color:rc(r),fontWeight:700,fontSize:13}}>{r.toFixed(1)}%</div>
                     <div style={{width:90,textAlign:"right",fontSize:11,color:MU}}>{d.s}/{d.u} units</div>
                   </div>);
@@ -302,7 +302,7 @@ export default function App(){
               <div id="ch-psf" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={430}>
                   <BarChart data={[...en].sort((a,b)=>a.psfMid-b.psfMid).map(p=>({name:p.name,full:p.name,dev:p.dev,base:p.psfMin,range:p.psfMax-p.psfMin,mid:p.psfMid,lo:p.psfMin,hi:p.psfMax}))} layout="vertical" margin={{left:8}}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#0A5540" horizontal={false}/>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#252F2D" horizontal={false}/>
                     <XAxis type="number" tick={{fill:MU,fontSize:11}} tickFormatter={v=>`RM ${v}`}/>
                     <YAxis dataKey="name" type="category" tick={{fill:MU,fontSize:9}} width={190} interval={0}/>
                     <Tooltip content={<PSFTip/>}/>
@@ -319,7 +319,7 @@ export default function App(){
                 <tbody>{[...en].sort((a,b)=>b.psfMid-a.psfMid).map((p,i)=>{
                   const tier=p.psfMid>=1600?"Ultra Luxury":p.psfMid>=1200?"Luxury":p.psfMid>=900?"Premium":"Mid-Range";
                   const tc=p.psfMid>=1600?G:p.psfMid>=1200?G2:p.psfMid>=900?BL:MU;
-                  return (<tr key={i} style={{borderBottom:"1px solid "+BD,background:p.dev==="Exsim"?"#062E20":i%2===0?CD:"#022A24"}}>
+                  return (<tr key={i} style={{borderBottom:"1px solid "+BD,background:p.dev==="Exsim"?"#0E1F18":i%2===0?CD:"#141A19"}}>
                     <td style={td({color:p.dev==="Exsim"?G:TX,fontWeight:p.dev==="Exsim"?700:400,fontSize:12})}>{p.name}</td>
                     <td style={td({color:MU,fontSize:12})}>{p.dev}</td>
                     <td style={td({color:MU})}>RM {p.psfMin.toLocaleString()}</td>
@@ -352,7 +352,7 @@ export default function App(){
                 <div id="ch-atot" style={{padding:"14px 18px"}}>
                   <ResponsiveContainer width="100%" height={170}>
                     <BarChart data={ATOT}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#0A5540"/>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#252F2D"/>
                       <XAxis dataKey="p" tick={{fill:MU,fontSize:11}}/>
                       <YAxis tick={{fill:MU,fontSize:11}}/>
                       <Tooltip content={<AnnTotTip/>}/>
@@ -361,7 +361,7 @@ export default function App(){
                   </ResponsiveContainer>
                   <div style={{marginTop:12,display:"flex",flexDirection:"column",gap:6}}>
                     {[{l:"2024",v:386,c:BL},{l:"2025",v:1884,c:G},{l:"1H 2026",v:1406,c:GR}].map((r,i)=>(
-                      <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",background:"#022A24",borderRadius:6,padding:"6px 10px",border:"1px solid "+BD}}>
+                      <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",background:"#141A19",borderRadius:6,padding:"6px 10px",border:"1px solid "+BD}}>
                         <span style={{fontSize:11,color:MU}}>{r.l}</span><span style={{fontSize:13,fontWeight:700,color:r.c}}>{r.v.toLocaleString()}</span>
                       </div>
                     ))}
@@ -378,7 +378,7 @@ export default function App(){
                   </div>
                   <ResponsiveContainer width="100%" height={420}>
                     <BarChart data={ANN} layout="vertical" margin={{left:4}}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#0A5540" horizontal={false}/>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#252F2D" horizontal={false}/>
                       <XAxis type="number" tick={{fill:MU,fontSize:10}}/>
                       <YAxis dataKey="sh" type="category" width={90} interval={0} tick={{fill:MU,fontSize:9}}/>
                       <Tooltip content={<AnnProjTip/>}/>
@@ -399,7 +399,7 @@ export default function App(){
                     const tot=(p.y4||0)+(p.y5||0)+(p.y6||0);
                     const trend=p.y5>0&&p.y4>0?(p.y5>p.y4?"↑ Accel":"↓ Slow"):p.y5>0?"→ Launch":"→ New";
                     const tc=trend.startsWith("↑")?GR:trend.startsWith("↓")?RE:BL;
-                    return (<tr key={i} style={{borderBottom:"1px solid "+BD,background:p.dev==="Exsim"?"#062E20":i%2===0?CD:"#022A24"}}>
+                    return (<tr key={i} style={{borderBottom:"1px solid "+BD,background:p.dev==="Exsim"?"#0E1F18":i%2===0?CD:"#141A19"}}>
                       <td style={td({color:MU,fontSize:11})}>{i+1}</td>
                       <td style={td({color:p.dev==="Exsim"?G:TX,fontWeight:p.dev==="Exsim"?700:400,fontSize:12})}>{p.name}{p.dev==="Exsim"?" ★":""}</td>
                       <td style={td({color:MU,fontSize:12})}>{p.dev}</td>
@@ -410,7 +410,7 @@ export default function App(){
                       <td style={td()}><Badge color={tc} text={trend}/></td>
                     </tr>);
                   })}
-                  <tr style={{background:"#062E20",borderTop:"1px solid "+G+"44"}}>
+                  <tr style={{background:"#0E1F18",borderTop:"1px solid "+G+"44"}}>
                     <td colSpan={3} style={td({color:G,fontWeight:700,fontSize:12})}>Market Total</td>
                     <td style={td({color:BL,fontWeight:700})}>386</td><td style={td({color:G,fontWeight:700})}>1,884</td>
                     <td style={td({color:GR,fontWeight:700})}>1,406</td><td style={td({color:TX,fontWeight:700})}>3,676</td><td/>
@@ -423,7 +423,7 @@ export default function App(){
               <div id="ch-monthly" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={430}>
                   <BarChart data={aB} layout="vertical" margin={{left:8}}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#0A5540" horizontal={false}/>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#252F2D" horizontal={false}/>
                     <XAxis type="number" tick={{fill:MU,fontSize:11}} unit="%"/>
                     <YAxis dataKey="name" type="category" tick={{fill:MU,fontSize:9}} width={190} interval={0}/>
                     <Tooltip content={<AbsTip/>}/>
@@ -440,7 +440,7 @@ export default function App(){
                 <tbody>{[...en].sort((a,b)=>b.monthly-a.monthly).map((p,i)=>{
                   const sl=p.monthly<=0?"N/A":p.so<=0?"Sold Out":`~${p.so} mo.`;
                   const sc2=p.so<=0?GR:p.so<=12?G:RE;
-                  return (<tr key={i} style={{borderBottom:"1px solid "+BD,background:p.dev==="Exsim"?"#062E20":i%2===0?CD:"#022A24"}}>
+                  return (<tr key={i} style={{borderBottom:"1px solid "+BD,background:p.dev==="Exsim"?"#0E1F18":i%2===0?CD:"#141A19"}}>
                     <td style={td({color:p.dev==="Exsim"?G:TX,fontWeight:p.dev==="Exsim"?700:400,fontSize:12})}>{p.name}</td>
                     <td style={td({color:MU,fontSize:12})}>{p.dev}</td>
                     <td style={td({color:MU})}>{p.launch}</td>
@@ -471,7 +471,7 @@ export default function App(){
                   </div>
                   <div style={{marginTop:14}}>
                     <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:MU,marginBottom:5}}><span>Take-Up Progress</span><span style={{color:rc(p.rate),fontWeight:700}}>{pct(p.rate)}</span></div>
-                    <div style={{height:7,background:"#0A5540",borderRadius:4}}><div style={{height:"100%",width:`${p.rate}%`,background:c,borderRadius:4}}/></div>
+                    <div style={{height:7,background:"#252F2D",borderRadius:4}}><div style={{height:"100%",width:`${p.rate}%`,background:c,borderRadius:4}}/></div>
                   </div>
                 </div>
               );})}
@@ -481,12 +481,12 @@ export default function App(){
               <div id="ch-bench" style={{padding:"14px 18px"}}>
                 <ResponsiveContainer width="100%" height={200}>
                   <BarChart data={[{n:"Market Low",v:0.2},{n:"Market Avg",v:parseFloat(avgR)},{n:"Market Top",v:99.83},...exsim.map(p=>({n:p.name.replace(" Suites","").replace("The ",""),v:p.rate}))]}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#0A5540"/>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#252F2D"/>
                     <XAxis dataKey="n" tick={{fill:MU,fontSize:10}}/>
                     <YAxis tick={{fill:MU,fontSize:11}} unit="%"/>
                     <Tooltip content={<BenchTip/>}/>
                     <Bar dataKey="v" radius={[4,4,0,0]}>
-                      <Cell fill="#0A4A38"/><Cell fill="#1A7058"/><Cell fill={GR}/>
+                      <Cell fill="#252F2D"/><Cell fill="#3A4A48"/><Cell fill={GR}/>
                       {exsim.map((_,i)=><Cell key={i} fill={G}/>)}
                     </Bar>
                   </BarChart>
@@ -494,7 +494,7 @@ export default function App(){
               </div>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
-              <div style={{background:"#062E20",border:"1px solid #0A6040",borderRadius:10,padding:16}}>
+              <div style={{background:"#0E1F18",border:"1px solid #1A3828",borderRadius:10,padding:16}}>
                 <div style={{fontSize:12,fontWeight:600,color:GR,marginBottom:8}}>✅ Strengths</div>
                 <ul style={{margin:0,paddingLeft:16,color:MU,fontSize:12,lineHeight:1.9}}>
                   <li><strong style={{color:TX}}>Noordinz Suites</strong> — 99.83% take-up, near-complete sellout</li>
@@ -523,16 +523,16 @@ export default function App(){
               <CardHead title="Project Location Map — Penang Island" sub="Hover markers · Green ★ = Exsim · Color = performance" onDl={()=>dlPNG("ch-map","penang_map")} dlLabel="Download PNG"/>
               <div id="ch-map" style={{padding:"0 18px 18px"}}>
                 <svg viewBox="0 0 580 400" style={{width:"100%",height:"auto",display:"block",borderRadius:8}}>
-                  <rect width="580" height="400" fill="#011E1A"/>
-                  {[60,120,180,240,300,360].map(y=><line key={y} x1="0" y1={y} x2="580" y2={y} stroke="#0A3A30" strokeWidth="1"/>)}
-                  {[100,200,300,400,500].map(x=><line key={x} x1={x} y1="0" x2={x} y2="400" stroke="#0A3A30" strokeWidth="1"/>)}
-                  <rect x="540" y="20" width="38" height="360" rx="2" fill="#032E28" stroke="#0A5540" strokeWidth="1"/>
-                  <text x="556" y="210" fill="#3A7060" fontSize="8" fontFamily="sans-serif" textAnchor="middle" transform="rotate(90,556,210)">MAINLAND</text>
-                  <line x1="465" y1="305" x2="542" y2="330" stroke="#0A5540" strokeWidth="2.5" strokeDasharray="5 3"/>
-                  <text x="508" y="355" fill="#3A7060" fontSize="8" fontFamily="sans-serif" textAnchor="middle">Penang Bridge</text>
-                  <path d="M 504,86 C 498,74 482,58 458,46 C 432,34 398,28 358,27 C 318,26 278,31 242,40 C 206,49 174,62 148,76 C 122,90 102,106 86,124 C 70,142 61,162 58,184 C 55,206 58,228 65,248 C 72,268 83,285 97,300 C 114,318 136,332 162,343 C 192,355 228,362 268,364 C 308,366 346,360 378,348 C 408,337 432,320 450,300 C 464,284 472,264 478,242 C 486,216 494,184 500,156 C 506,128 510,106 504,86 Z" fill="#043830" stroke="#0A5540" strokeWidth="1.5"/>
-                  <path d="M 504,86 C 510,78 518,72 522,80 C 526,90 518,102 510,100 C 506,99 504,94 504,86 Z" fill="#043830" stroke="#0A5540" strokeWidth="1"/>
-                  <path d="M 86,124 C 74,116 64,108 62,118 C 60,128 70,138 82,136 C 86,134 88,130 86,124 Z" fill="#043830" stroke="#0A5540" strokeWidth="1"/>
+                  <rect width="580" height="400" fill="#0E1212"/>
+                  {[60,120,180,240,300,360].map(y=><line key={y} x1="0" y1={y} x2="580" y2={y} stroke="#181E1E" strokeWidth="1"/>)}
+                  {[100,200,300,400,500].map(x=><line key={x} x1={x} y1="0" x2={x} y2="400" stroke="#181E1E" strokeWidth="1"/>)}
+                  <rect x="540" y="20" width="38" height="360" rx="2" fill="#1A2020" stroke="#272F2D" strokeWidth="1"/>
+                  <text x="556" y="210" fill="#4A5858" fontSize="8" fontFamily="sans-serif" textAnchor="middle" transform="rotate(90,556,210)">MAINLAND</text>
+                  <line x1="465" y1="305" x2="542" y2="330" stroke="#4A5858" strokeWidth="2.5" strokeDasharray="5 3"/>
+                  <text x="508" y="355" fill="#4A5858" fontSize="8" fontFamily="sans-serif" textAnchor="middle">Penang Bridge</text>
+                  <path d="M 504,86 C 498,74 482,58 458,46 C 432,34 398,28 358,27 C 318,26 278,31 242,40 C 206,49 174,62 148,76 C 122,90 102,106 86,124 C 70,142 61,162 58,184 C 55,206 58,228 65,248 C 72,268 83,285 97,300 C 114,318 136,332 162,343 C 192,355 228,362 268,364 C 308,366 346,360 378,348 C 408,337 432,320 450,300 C 464,284 472,264 478,242 C 486,216 494,184 500,156 C 506,128 510,106 504,86 Z" fill="#1E2626" stroke="#2A3232" strokeWidth="1.5"/>
+                  <path d="M 504,86 C 510,78 518,72 522,80 C 526,90 518,102 510,100 C 506,99 504,94 504,86 Z" fill="#1E2626" stroke="#2A3232" strokeWidth="1"/>
+                  <path d="M 86,124 C 74,116 64,108 62,118 C 60,128 70,138 82,136 C 86,134 88,130 86,124 Z" fill="#1E2626" stroke="#2A3232" strokeWidth="1"/>
                   <ellipse cx="330" cy="72" rx="45" ry="22" fill={G} opacity="0.14"/>
                   <ellipse cx="340" cy="114" rx="46" ry="30" fill={BL} opacity="0.14"/>
                   <ellipse cx="327" cy="152" rx="30" ry="18" fill={GR} opacity="0.14"/>
@@ -566,7 +566,7 @@ export default function App(){
                 return (<div key={i} style={{background:CD,border:"1px solid "+BD,borderRadius:10,padding:14}}>
                   <div style={{fontSize:11,fontWeight:600,color:c,marginBottom:6}}>{zone}</div>
                   <div style={{fontSize:11,color:MU,marginBottom:6}}>{d.ps.length} project{d.ps.length>1?"s":""} · {d.u.toLocaleString()} units</div>
-                  <div style={{height:5,background:"#0A5540",borderRadius:3,marginBottom:6}}><div style={{height:"100%",width:`${Math.min(r,100)}%`,background:c,borderRadius:3}}/></div>
+                  <div style={{height:5,background:"#252F2D",borderRadius:3,marginBottom:6}}><div style={{height:"100%",width:`${Math.min(r,100)}%`,background:c,borderRadius:3}}/></div>
                   <div style={{fontSize:12,color:rc(r),fontWeight:700,marginBottom:6}}>{r.toFixed(1)}% take-up</div>
                   <div style={{fontSize:10,color:MU,lineHeight:1.7}}>{d.ps.slice(0,3).join(", ")}{d.ps.length>3?` +${d.ps.length-3} more`:""}</div>
                 </div>);
@@ -587,7 +587,7 @@ export default function App(){
                 </div>
                 <ResponsiveContainer width="100%" height={360}>
                   <ScatterChart margin={{top:10,right:40,bottom:30,left:20}}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#0A5540"/>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#252F2D"/>
                     <XAxis dataKey="x" type="number" name="Size" unit=" sf" domain={[200,3200]} tick={{fill:MU,fontSize:11}} label={{value:"Avg Unit Size (sq ft)",position:"insideBottom",offset:-15,fill:MU,fontSize:11}}/>
                     <YAxis dataKey="y" type="number" name="PSF" domain={[700,2400]} tick={{fill:MU,fontSize:11}} tickFormatter={v=>`RM ${v}`} label={{value:"RM PSF",angle:-90,position:"insideLeft",fill:MU,fontSize:11}}/>
                     <ZAxis dataKey="z" range={[60,700]}/>
@@ -601,14 +601,14 @@ export default function App(){
               </div>
               <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,margin:"0 18px 18px"}}>
                 {[{q:"🏢 Compact Premium",d:"Small, high-PSF. Investor & yield appeal.",c:G},{q:"🌟 Spacious Premium",d:"Large luxury. HNW segment.",c:G2},{q:"💰 Compact Value",d:"Affordable compact. High volume.",c:BL},{q:"🏡 Spacious Value",d:"Large but accessible. Owner-occ.",c:GR}].map((q,i)=>(
-                  <div key={i} style={{background:"#022A24",borderRadius:8,padding:"10px 12px",border:"1px solid "+BD}}>
+                  <div key={i} style={{background:"#141A19",borderRadius:8,padding:"10px 12px",border:"1px solid "+BD}}>
                     <div style={{fontSize:11,fontWeight:600,color:q.c,marginBottom:4}}>{q.q}</div>
                     <div style={{fontSize:10,color:MU,lineHeight:1.6}}>{q.d}</div>
                   </div>
                 ))}
               </div>
             </div>
-            <div style={{background:"#062E20",border:"1px solid "+G+"44",borderRadius:10,padding:16}}>
+            <div style={{background:"#0E1F18",border:"1px solid "+G+"33",borderRadius:10,padding:16}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
                 <div style={{fontSize:13,fontWeight:600,color:G}}>📊 Exsim Positioning Insight</div>
                 <DBtn onClick={()=>dlCSV(exsim.map(p=>({name:p.name,sfMid:p.sfMid,psfMid:p.psfMid,quad:p.sfMid>900&&p.psfMid>1300?"Spacious Premium":p.sfMid<=900&&p.psfMid>1300?"Compact Premium":p.sfMid>900?"Spacious Value":"Compact Value",rate:p.rate})),[{key:"name",label:"Project"},{key:"sfMid",label:"Avg SF"},{key:"psfMid",label:"Avg PSF"},{key:"quad",label:"Quadrant"},{key:"rate",label:"Sales Rate %"}],"exsim_positioning")} label="Export CSV"/>
@@ -616,7 +616,7 @@ export default function App(){
               <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12}}>
                 {exsim.map((p,i)=>{
                   const quad=p.sfMid>900&&p.psfMid>1300?"Spacious Premium":p.sfMid<=900&&p.psfMid>1300?"Compact Premium":p.sfMid>900?"Spacious Value":"Compact Value";
-                  return (<div key={i} style={{background:"#032E28",borderRadius:8,padding:12,border:"1px solid "+G+"44"}}>
+                  return (<div key={i} style={{background:"#141A19",borderRadius:8,padding:12,border:"1px solid "+G+"33"}}>
                     <div style={{fontSize:12,fontWeight:700,color:G,marginBottom:4}}>{p.name}</div>
                     <div style={{fontSize:11,color:MU,marginBottom:6}}>Avg {p.sfMid.toLocaleString()} sf · RM {p.psfMid.toLocaleString()} psf</div>
                     <div style={{fontSize:11,fontWeight:600,color:quad.includes("Premium")?G:BL}}>📍 {quad}</div>
@@ -677,7 +677,7 @@ export default function App(){
               </div>
               <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,padding:16}}>
                 {[{name:"Noordinz Suites",seg:"Entry Luxury",note:"99.83% sold — validates strong sub-RM 1M demand. Consider higher ASP on future phases.",c:GR},{name:"The Lighthauz",seg:"Mid Luxury",note:"469 units absorbed 2025–1H26. Differentiate via design and lifestyle programming.",c:G},{name:"Keeperz Suites",seg:"Entry–Mid Luxury",note:"Launched at highest Exsim PSF (RM 1,723 max). Lead with investor-yield narrative.",c:BL}].map((item,i)=>(
-                  <div key={i} style={{background:"#022A24",borderRadius:8,padding:14,border:"1px solid "+BD}}>
+                  <div key={i} style={{background:"#141A19",borderRadius:8,padding:14,border:"1px solid "+BD}}>
                     <div style={{fontSize:12,fontWeight:700,color:G,marginBottom:2}}>{item.name}</div>
                     <div style={{fontSize:10,color:item.c,marginBottom:8,fontWeight:600}}>{item.seg}</div>
                     <div style={{fontSize:11,color:MU,lineHeight:1.7}}>{item.note}</div>
