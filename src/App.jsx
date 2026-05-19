@@ -19,7 +19,10 @@ const CRD={"Noordinz Suites":{x:367,y:128},"Queens Residences Q3":{x:320,y:217},
 const ZMAP={"Tanjung Tokong/North":["The Lume","Maris","Westin Residences","The Crown","Avea"],"Georgetown/Gurney":["Noordinz Suites","G'Vinton","Lumina Residence","The Anton","Scott @ Logan","The Lighthauz","Keeperz Suites"],"Jelutong/Gelugor":["Alton Skyvillas","Setia SV2","Lightwater Residences"],"Bayan Lepas":["Queens Residences Q3","Avion","Bayan Suite"]};
 const ZC={"Tanjung Tokong/North":G,"Georgetown/Gurney":BL,"Jelutong/Gelugor":GR,"Bayan Lepas":RE};
 const gz=n=>{for(const[z,ns]of Object.entries(ZMAP))if(ns.includes(n))return z;return"Georgetown/Gurney";};
-const TABS=["Overview","Sales Performance","Pricing","Absorption Rate","Exsim Portfolio","Location Map","Value Positioning","Buyer Segments"];
+const TABS=["Overview","Sales Performance","Pricing","Absorption Rate","Developer Spotlight","Location Map","Value Positioning","Buyer Segments"];
+const PERF_LEGEND=[{c:GR,l:"≥75% Take-Up"},{c:BL,l:"40–74% Take-Up"},{c:RE,l:"<40% Take-Up"}];
+const ANN_LEGEND=[{c:BL,l:"2024"},{c:GR,l:"2025"},{c:G,l:"1H 2026"}];
+const MONTHLY_LEGEND=[{c:GR,l:"≥3%/month"},{c:BL,l:"1–3%/month"},{c:RE,l:"<1%/month"}];
 
 function Badge({color,text}){
   return (<span style={{background:color+"22",color:color,padding:"2px 10px",borderRadius:20,fontSize:11,fontWeight:600}}>{text}</span>);
@@ -43,6 +46,18 @@ function CardHead({title,sub,onDl,dlLabel}){
     </div>
   );
 }
+function LegendRow({items}){
+  return (
+    <div style={{display:"flex",gap:18,fontSize:11,color:MU,padding:"0 18px 10px",flexWrap:"wrap"}}>
+      {items.map((it,i)=>(
+        <span key={i} style={{display:"flex",alignItems:"center",gap:5}}>
+          <span style={{display:"inline-block",width:11,height:11,background:it.c,borderRadius:2,flexShrink:0}}/>
+          {it.l}
+        </span>
+      ))}
+    </div>
+  );
+}
 function SortTh({col,label,sc,sd,fn}){
   return (<th onClick={()=>fn(col)} style={{padding:"9px 12px",color:sc===col?G:"#B0D4CC",fontSize:10,textTransform:"uppercase",letterSpacing:1,fontWeight:600,cursor:"pointer",textAlign:"left",whiteSpace:"nowrap",userSelect:"none",background:"none"}}>{label}{sc===col?(sd==="desc"?" ▾":" ▴"):""}</th>);
 }
@@ -50,7 +65,7 @@ function SortTh({col,label,sc,sd,fn}){
 function Tip({name,dev,rows}){
   return (
     <div style={TP}>
-      <p style={{color:dev==="Exsim"?G:"#FFFFFF",fontWeight:700,fontSize:13,margin:"0 0 3px"}}>{name}</p>
+      <p style={{color:"#FFFFFF",fontWeight:700,fontSize:13,margin:"0 0 3px"}}>{name}</p>
       {dev && <p style={{color:"#80BBAD",fontSize:11,margin:"0 0 8px"}}>{dev}</p>}
       {rows.map((r,i)=>(<p key={i} style={{margin:"2px 0",color:"#9AB4B0",fontSize:12}}>{r.label}: <strong style={{color:r.c||"#FFFFFF"}}>{r.v}</strong></p>))}
     </div>
@@ -96,8 +111,8 @@ function MapHover({p,c}){
   const bx=c.x>430?c.x-168:c.x+14,by=c.y>290?c.y-108:c.y-6;
   return (
     <g>
-      <rect x={bx} y={by} width={162} height={100} rx="6" fill="#1C2828" stroke={p.dev==="Exsim"?G:"#2E3C3A"} strokeWidth="1"/>
-      <text x={bx+10} y={by+15} fill={p.dev==="Exsim"?G:"#FFFFFF"} fontSize="10" fontWeight="bold" fontFamily="sans-serif">{p.name}</text>
+      <rect x={bx} y={by} width={162} height={100} rx="6" fill="#1C2828" stroke="#2E3C3A" strokeWidth="1"/>
+      <text x={bx+10} y={by+15} fill="#FFFFFF" fontSize="10" fontWeight="bold" fontFamily="sans-serif">{p.name}</text>
       <text x={bx+10} y={by+28} fill="#80BBAD" fontSize="8.5" fontFamily="sans-serif">{p.dev} · {p.comp}</text>
       <text x={bx+10} y={by+42} fill="#CAD1D3" fontSize="8.5" fontFamily="sans-serif">{p.units} units · RM {p.psfMin}–{p.psfMax} psf</text>
       <text x={bx+10} y={by+56} fill={rc(p.rate)} fontSize="9" fontFamily="sans-serif" fontWeight="bold">Sales Rate: {p.rate}%</text>
@@ -129,16 +144,15 @@ export default function App(){
     return{...p,mo,sold,monthly,psfMid:Math.round((p.psfMin+p.psfMax)/2),sfMid:Math.round((p.sfMin+p.sfMax)/2),rem:p.units-sold,so:monthly>0?Math.ceil((100-p.rate)/monthly):999,zone:gz(p.name)};
   }),[]);
 
-  const exsim=en.filter(p=>p.dev==="Exsim");
+  const spotlight=en.filter(p=>p.dev==="Exsim");
   const avgR=(ACTIVE.reduce((s,p)=>s+p.rate,0)/ACTIVE.length).toFixed(1);
   const avgM=(en.reduce((s,p)=>s+p.monthly,0)/en.length).toFixed(2);
   const sorted=[...en].sort((a,b)=>{const av=a[sc],bv=b[sc];if(typeof av==="string")return sd==="desc"?bv.localeCompare(av):av.localeCompare(bv);return sd==="desc"?bv-av:av-bv;});
   const ds=col=>{if(sc===col)setSd(d=>d==="desc"?"asc":"desc");else{setSc(col);setSd("desc");}};
 
-  const bD=[...en].sort((a,b)=>b.rate-a.rate).map(p=>({name:p.name,full:p.name,dev:p.dev,v:p.rate,color:p.dev==="Exsim"?G:p.rate>=75?GR:p.rate>=40?BL:RE}));
-  const aB=[...en].sort((a,b)=>b.monthly-a.monthly).map(p=>({name:p.name,full:p.name,dev:p.dev,v:p.monthly,color:p.dev==="Exsim"?G:BL}));
-  const scO=en.filter(p=>p.dev!=="Exsim").map(p=>({x:p.sfMid,y:p.psfMid,z:p.units,name:p.name,dev:p.dev,rate:p.rate}));
-  const scE=en.filter(p=>p.dev==="Exsim").map(p=>({x:p.sfMid,y:p.psfMid,z:p.units,name:p.name,dev:p.dev,rate:p.rate}));
+  const bD=[...en].sort((a,b)=>b.rate-a.rate).map(p=>({name:p.name,full:p.name,dev:p.dev,v:p.rate,color:p.rate>=75?GR:p.rate>=40?BL:RE}));
+  const aB=[...en].sort((a,b)=>b.monthly-a.monthly).map(p=>({name:p.name,full:p.name,dev:p.dev,v:p.monthly,color:p.monthly>=3?GR:p.monthly>=1?BL:RE}));
+  const sc2=en.map(p=>({x:p.sfMid,y:p.psfMid,z:p.units,name:p.name,dev:p.dev,rate:p.rate}));
   const SEGS=[
     {label:"Entry Luxury",range:"< RM 800K",color:BL,persona:"First-time luxury buyers, young professionals and investors seeking rental yield. Price-sensitive but aspirational.",proj:en.filter(p=>p.pMin<800000)},
     {label:"Mid Luxury",range:"RM 800K–1.5M",color:GR,persona:"Upgraders, dual-income households and regional investors. Seeking lifestyle amenities and brand credibility.",proj:en.filter(p=>p.pMin>=800000&&p.pMin<1500000)},
@@ -146,17 +160,28 @@ export default function App(){
     {label:"Ultra Luxury",range:"RM 3M+",color:"#E5B8D0",persona:"Ultra-HNWIs and trophy property collectors. Cash-heavy transactions driven by scarcity and prestige.",proj:en.filter(p=>p.pMin>=3000000)},
   ];
 
-  const dlPNG=(id,fn)=>{
+  const dlPNG=(id,fn,legend=[])=>{
     const el=document.getElementById(id);if(!el)return;
     const svg=el.querySelector("svg");if(!svg)return;
     const w=svg.clientWidth||800,h=svg.clientHeight||400;
+    const lh=legend.length?34:0;
     const str=new XMLSerializer().serializeToString(svg);
     const blob=new Blob([str],{type:"image/svg+xml;charset=utf-8"});
     const url=URL.createObjectURL(blob);
     const img=new Image();
     img.onload=()=>{
-      const cv=document.createElement("canvas");cv.width=w*2;cv.height=h*2;
-      const ctx=cv.getContext("2d");ctx.scale(2,2);ctx.fillStyle=CD;ctx.fillRect(0,0,w,h);ctx.drawImage(img,0,0,w,h);
+      const cv=document.createElement("canvas");cv.width=w*2;cv.height=(h+lh)*2;
+      const ctx=cv.getContext("2d");ctx.scale(2,2);
+      ctx.fillStyle="#FFFFFF";ctx.fillRect(0,0,w,h+lh);
+      ctx.drawImage(img,0,0,w,h);
+      if(legend.length){
+        const iw=Math.min(130,w/legend.length),totalW=legend.length*iw,lx=(w-totalW)/2;
+        legend.forEach((it,i)=>{
+          ctx.fillStyle=it.c;ctx.fillRect(lx+i*iw,h+11,11,11);
+          ctx.fillStyle="#6A7E7A";ctx.font="11px 'Segoe UI',sans-serif";
+          ctx.fillText(it.l,lx+i*iw+15,h+21);
+        });
+      }
       cv.toBlob(b=>{const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=fn+".png";a.click();},"image/png");
       URL.revokeObjectURL(url);
     };img.src=url;
@@ -179,9 +204,9 @@ export default function App(){
           <div style={{fontSize:11,color:"#80BBAD",marginTop:3}}>18 Active Projects · 2 Completed Benchmarks · As of May 2026</div>
         </div>
         <div style={{textAlign:"right"}}>
-          <div style={{fontSize:11,color:"#80BBAD",marginBottom:2}}>Prepared for</div>
-          <div style={{fontSize:16,fontWeight:700,color:G}}>Exsim Group</div>
-          <div style={{marginTop:8,fontSize:10,background:G+"25",border:"1px solid "+G+"66",borderRadius:20,padding:"3px 14px",color:G,display:"inline-block",letterSpacing:1}}>CONFIDENTIAL</div>
+          <div style={{fontSize:11,color:"#80BBAD",marginBottom:2}}>Prepared by</div>
+          <div style={{fontSize:16,fontWeight:700,color:G}}>CBRE | WTW</div>
+          <div style={{fontSize:11,color:"#80BBAD",marginTop:2}}>Internal Research Use Only</div>
           {syncing&&<div style={{marginTop:6,fontSize:10,color:"#80BBAD",display:"flex",alignItems:"center",gap:5,justifyContent:"flex-end"}}><span style={{display:"inline-block",width:7,height:7,borderRadius:"50%",border:"1.5px solid #80BBAD",borderTopColor:G,animation:"spin 0.9s linear infinite"}}/> Syncing…<style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div>}
           {syncError&&!syncing&&<div style={{marginTop:6,fontSize:10,color:"#FF8080",textAlign:"right"}}>⚠ Offline — showing saved data</div>}
         </div>
@@ -216,9 +241,9 @@ export default function App(){
                 <table style={{width:"100%",borderCollapse:"collapse"}}>
                   <thead style={{background:"#003F2D"}}><tr><SortTh col="no" label="#" sc={sc} sd={sd} fn={ds}/><SortTh col="dev" label="Developer" sc={sc} sd={sd} fn={ds}/><SortTh col="name" label="Project" sc={sc} sd={sd} fn={ds}/><SortTh col="units" label="Units" sc={sc} sd={sd} fn={ds}/><SortTh col="psfMid" label="Avg PSF" sc={sc} sd={sd} fn={ds}/><SortTh col="launch" label="Launch" sc={sc} sd={sd} fn={ds}/><SortTh col="comp" label="Comp." sc={sc} sd={sd} fn={ds}/><SortTh col="rate" label="Sales Rate %" sc={sc} sd={sd} fn={ds}/><SortTh col="sold" label="Sold" sc={sc} sd={sd} fn={ds}/><SortTh col="monthly" label="Monthly Abs." sc={sc} sd={sd} fn={ds}/></tr></thead>
                   <tbody>{sorted.map((p,i)=>(
-                    <tr key={p.no} style={{background:p.dev==="Exsim"?"#F0FAF5":i%2===0?"#FFFFFF":"#F6F8F7",borderBottom:"1px solid "+BD}}>
+                    <tr key={p.no} style={{background:i%2===0?"#FFFFFF":"#F6F8F7",borderBottom:"1px solid "+BD}}>
                       <td style={td({color:MU,fontSize:11})}>{p.no}</td>
-                      <td style={td({color:p.dev==="Exsim"?G:TX,fontWeight:p.dev==="Exsim"?700:400,fontSize:12})}>{p.dev}{p.dev==="Exsim"?" ★":""}</td>
+                      <td style={td({color:TX,fontSize:12})}>{p.dev}</td>
                       <td style={td({color:TX,fontSize:12})}>{p.name}</td>
                       <td style={td({color:MU})}>{p.units}</td>
                       <td style={td({color:TX})}>RM {p.psfMid.toLocaleString()}</td>
@@ -262,7 +287,7 @@ export default function App(){
         {tab==="Sales Performance" && (
           <div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:16}}>
-              <CardHead title="Sales Take-Up Rate by Project (%)" sub="Green=Exsim · Dark Green ≥75% · Sage 40–74% · Red <40%" onDl={()=>dlPNG("ch-sales","sales_rate")} dlLabel="Download PNG"/>
+              <CardHead title="Sales Take-Up Rate by Project (%)" sub="Dark Green ≥75% · Sage 40–74% · Red <40%" onDl={()=>dlPNG("ch-sales","sales_rate",PERF_LEGEND)} dlLabel="Download PNG"/>
               <div id="ch-sales" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={430}>
                   <BarChart data={bD} layout="vertical" margin={{left:8}}>
@@ -275,16 +300,17 @@ export default function App(){
                   </BarChart>
                 </ResponsiveContainer>
               </div>
+              <LegendRow items={PERF_LEGEND}/>
             </div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden"}}>
               <CardHead title="Developer Performance Summary" onDl={()=>dlCSV(Object.entries(en.reduce((a,p)=>{if(!a[p.dev])a[p.dev]={dev:p.dev,n:0,u:0,s:0};a[p.dev].n++;a[p.dev].u+=p.units;a[p.dev].s+=p.sold;return a;},{})).map(([,d])=>({...d,rate:((d.s/d.u)*100).toFixed(1)})),[{key:"dev",label:"Developer"},{key:"n",label:"Projects"},{key:"u",label:"Units"},{key:"s",label:"Sold"},{key:"rate",label:"Take-Up %"}],"dev_performance")} dlLabel="Export CSV"/>
               <div style={{padding:"0 18px 18px"}}>
                 {Object.entries(en.reduce((a,p)=>{if(!a[p.dev])a[p.dev]={n:0,u:0,s:0};a[p.dev].n++;a[p.dev].u+=p.units;a[p.dev].s+=p.sold;return a;},{})).sort((a,b)=>(b[1].s/b[1].u)-(a[1].s/a[1].u)).map(([dev,d],i)=>{
-                  const r=d.s/d.u*100,isEx=dev==="Exsim";
+                  const r=d.s/d.u*100;
                   return (<div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 0",borderBottom:"1px solid "+BD}}>
-                    <div style={{width:130,fontSize:12,color:isEx?G:TX,fontWeight:isEx?700:400}}>{dev}{isEx?" ★":""}</div>
+                    <div style={{width:130,fontSize:12,color:TX}}>{dev}</div>
                     <div style={{fontSize:11,color:MU,width:55}}>{d.n} proj.</div>
-                    <div style={{flex:1,height:7,background:"#DDE4E2",borderRadius:4}}><div style={{height:"100%",width:`${Math.min(r,100)}%`,background:isEx?G:rc(r),borderRadius:4}}/></div>
+                    <div style={{flex:1,height:7,background:"#DDE4E2",borderRadius:4}}><div style={{height:"100%",width:`${Math.min(r,100)}%`,background:rc(r),borderRadius:4}}/></div>
                     <div style={{width:50,textAlign:"right",color:rc(r),fontWeight:700,fontSize:13}}>{r.toFixed(1)}%</div>
                     <div style={{width:90,textAlign:"right",fontSize:11,color:MU}}>{d.s}/{d.u} units</div>
                   </div>);
@@ -298,19 +324,20 @@ export default function App(){
         {tab==="Pricing" && (
           <div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:16}}>
-              <CardHead title="PSF Price Range by Project (RM)" sub="Min–Max PSF · Green=Exsim" onDl={()=>dlPNG("ch-psf","psf_range")} dlLabel="Download PNG"/>
+              <CardHead title="PSF Price Range by Project (RM)" sub="Min–Max range · Color indicates sales performance" onDl={()=>dlPNG("ch-psf","psf_range",PERF_LEGEND)} dlLabel="Download PNG"/>
               <div id="ch-psf" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={430}>
-                  <BarChart data={[...en].sort((a,b)=>a.psfMid-b.psfMid).map(p=>({name:p.name,full:p.name,dev:p.dev,base:p.psfMin,range:p.psfMax-p.psfMin,mid:p.psfMid,lo:p.psfMin,hi:p.psfMax}))} layout="vertical" margin={{left:8}}>
+                  <BarChart data={[...en].sort((a,b)=>a.psfMid-b.psfMid).map(p=>({name:p.name,full:p.name,dev:p.dev,base:p.psfMin,range:p.psfMax-p.psfMin,mid:p.psfMid,lo:p.psfMin,hi:p.psfMax,rate:p.rate}))} layout="vertical" margin={{left:8}}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#DDE4E2" horizontal={false}/>
                     <XAxis type="number" tick={{fill:MU,fontSize:11}} tickFormatter={v=>`RM ${v}`}/>
                     <YAxis dataKey="name" type="category" tick={{fill:MU,fontSize:9}} width={190} interval={0}/>
                     <Tooltip content={<PSFTip/>}/>
                     <Bar dataKey="base" stackId="a" fill="transparent"/>
-                    <Bar dataKey="range" stackId="a" radius={[0,4,4,0]}>{[...en].sort((a,b)=>a.psfMid-b.psfMid).map((p,i)=><Cell key={i} fill={p.dev==="Exsim"?G:BL} fillOpacity={0.8}/>)}</Bar>
+                    <Bar dataKey="range" stackId="a" radius={[0,4,4,0]}>{[...en].sort((a,b)=>a.psfMid-b.psfMid).map((p,i)=><Cell key={i} fill={rc(p.rate)} fillOpacity={0.8}/>)}</Bar>
                   </BarChart>
                 </ResponsiveContainer>
               </div>
+              <LegendRow items={PERF_LEGEND}/>
             </div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden"}}>
               <CardHead title="Price vs Performance Matrix" onDl={()=>dlCSV([...en].sort((a,b)=>b.psfMid-a.psfMid),[{key:"name",label:"Project"},{key:"dev",label:"Developer"},{key:"psfMin",label:"PSF Min"},{key:"psfMax",label:"PSF Max"},{key:"psfMid",label:"PSF Mid"},{key:"rate",label:"Sales Rate %"}],"price_matrix")} dlLabel="Export CSV"/>
@@ -319,8 +346,8 @@ export default function App(){
                 <tbody>{[...en].sort((a,b)=>b.psfMid-a.psfMid).map((p,i)=>{
                   const tier=p.psfMid>=1600?"Ultra Luxury":p.psfMid>=1200?"Luxury":p.psfMid>=900?"Premium":"Mid-Range";
                   const tc=p.psfMid>=1600?G:p.psfMid>=1200?G2:p.psfMid>=900?BL:MU;
-                  return (<tr key={i} style={{borderBottom:"1px solid "+BD,background:p.dev==="Exsim"?"#F0FAF5":i%2===0?"#FFFFFF":"#F6F8F7"}}>
-                    <td style={td({color:p.dev==="Exsim"?G:TX,fontWeight:p.dev==="Exsim"?700:400,fontSize:12})}>{p.name}</td>
+                  return (<tr key={i} style={{borderBottom:"1px solid "+BD,background:i%2===0?"#FFFFFF":"#F6F8F7"}}>
+                    <td style={td({color:TX,fontSize:12})}>{p.name}</td>
                     <td style={td({color:MU,fontSize:12})}>{p.dev}</td>
                     <td style={td({color:MU})}>RM {p.psfMin.toLocaleString()}</td>
                     <td style={td({color:MU})}>RM {p.psfMax.toLocaleString()}</td>
@@ -338,7 +365,7 @@ export default function App(){
         {tab==="Absorption Rate" && (
           <div>
             <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:16}}>
-              {[{l:"Market Avg Monthly",v:`${avgM}%`,s:"All 18 projects",c:G},{l:"Top Performer",v:"The Anton",s:"4.71%/month",c:GR},{l:"2025 Market Total",v:"1,884",s:"Units absorbed",c:BL},{l:"Exsim Avg Monthly",v:`${(exsim.reduce((s,p)=>s+p.monthly,0)/exsim.length).toFixed(2)}%`,s:"Portfolio avg",c:G2}].map((k,i)=>(
+              {[{l:"Market Avg Monthly",v:`${avgM}%`,s:"All 18 projects",c:G},{l:"Top Performer",v:"The Anton",s:"4.71%/month",c:GR},{l:"2025 Market Total",v:"1,884",s:"Units absorbed",c:BL},{l:"High Performers",v:`${en.filter(p=>p.rate>=75).length}`,s:"Projects ≥75% take-up",c:G2}].map((k,i)=>(
                 <div key={i} style={{background:CD,border:"1px solid "+BD,borderRadius:10,padding:"16px 18px",borderTop:"2px solid "+k.c}}>
                   <div style={{fontSize:10,color:MU,letterSpacing:2,textTransform:"uppercase",marginBottom:6}}>{k.l}</div>
                   <div style={{fontSize:22,fontWeight:700,color:k.c}}>{k.v}</div>
@@ -348,7 +375,7 @@ export default function App(){
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 2fr",gap:14,marginBottom:14}}>
               <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden"}}>
-                <CardHead title="Annual Market Total" onDl={()=>dlPNG("ch-atot","annual_total")} dlLabel="PNG"/>
+                <CardHead title="Annual Market Total" onDl={()=>dlPNG("ch-atot","annual_total",ANN_LEGEND)} dlLabel="PNG"/>
                 <div id="ch-atot" style={{padding:"14px 18px"}}>
                   <ResponsiveContainer width="100%" height={170}>
                     <BarChart data={ATOT}>
@@ -367,9 +394,10 @@ export default function App(){
                     ))}
                   </div>
                 </div>
+                <LegendRow items={ANN_LEGEND}/>
               </div>
               <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden"}}>
-                <CardHead title="Annual Units Absorbed — Per Project" onDl={()=>dlPNG("ch-aproj","annual_per_project")} dlLabel="Download PNG"/>
+                <CardHead title="Annual Units Absorbed — Per Project" onDl={()=>dlPNG("ch-aproj","annual_per_project",ANN_LEGEND)} dlLabel="Download PNG"/>
                 <div id="ch-aproj" style={{padding:"14px 18px"}}>
                   <div style={{display:"flex",gap:16,fontSize:11,color:MU,marginBottom:12}}>
                     {[{c:BL,l:"2024"},{c:G,l:"2025"},{c:GR,l:"1H 2026"}].map((it,i)=>(
@@ -399,9 +427,9 @@ export default function App(){
                     const tot=(p.y4||0)+(p.y5||0)+(p.y6||0);
                     const trend=p.y5>0&&p.y4>0?(p.y5>p.y4?"↑ Accel":"↓ Slow"):p.y5>0?"→ Launch":"→ New";
                     const tc=trend.startsWith("↑")?GR:trend.startsWith("↓")?RE:BL;
-                    return (<tr key={i} style={{borderBottom:"1px solid "+BD,background:p.dev==="Exsim"?"#F0FAF5":i%2===0?"#FFFFFF":"#F6F8F7"}}>
+                    return (<tr key={i} style={{borderBottom:"1px solid "+BD,background:i%2===0?"#FFFFFF":"#F6F8F7"}}>
                       <td style={td({color:MU,fontSize:11})}>{i+1}</td>
-                      <td style={td({color:p.dev==="Exsim"?G:TX,fontWeight:p.dev==="Exsim"?700:400,fontSize:12})}>{p.name}{p.dev==="Exsim"?" ★":""}</td>
+                      <td style={td({color:TX,fontSize:12})}>{p.name}</td>
                       <td style={td({color:MU,fontSize:12})}>{p.dev}</td>
                       <td style={td({color:p.y4?BL:MU,fontWeight:p.y4?700:400})}>{p.y4||"—"}</td>
                       <td style={td({color:p.y5?G:MU,fontWeight:p.y5?700:400})}>{p.y5||"—"}</td>
@@ -410,8 +438,8 @@ export default function App(){
                       <td style={td()}><Badge color={tc} text={trend}/></td>
                     </tr>);
                   })}
-                  <tr style={{background:"#F0FAF5",borderTop:"1px solid "+BD}}>
-                    <td colSpan={3} style={td({color:G,fontWeight:700,fontSize:12})}>Market Total</td>
+                  <tr style={{background:"#F6F8F7",borderTop:"1px solid "+BD}}>
+                    <td colSpan={3} style={td({color:GR,fontWeight:700,fontSize:12})}>Market Total</td>
                     <td style={td({color:BL,fontWeight:700})}>386</td><td style={td({color:G,fontWeight:700})}>1,884</td>
                     <td style={td({color:GR,fontWeight:700})}>1,406</td><td style={td({color:TX,fontWeight:700})}>3,676</td><td/>
                   </tr>
@@ -419,7 +447,7 @@ export default function App(){
               </table>
             </div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:14}}>
-              <CardHead title="Monthly Absorption Rate — All Projects" sub="Sales Rate ÷ Months since launch · Green=Exsim" onDl={()=>dlPNG("ch-monthly","monthly_abs")} dlLabel="Download PNG"/>
+              <CardHead title="Monthly Absorption Rate — All Projects" sub="Sales Rate ÷ Months since launch" onDl={()=>dlPNG("ch-monthly","monthly_abs",MONTHLY_LEGEND)} dlLabel="Download PNG"/>
               <div id="ch-monthly" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={430}>
                   <BarChart data={aB} layout="vertical" margin={{left:8}}>
@@ -432,6 +460,7 @@ export default function App(){
                   </BarChart>
                 </ResponsiveContainer>
               </div>
+              <LegendRow items={MONTHLY_LEGEND}/>
             </div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden"}}>
               <CardHead title="Absorption Detail & Sell-Out Projection" onDl={()=>dlCSV([...en].sort((a,b)=>b.monthly-a.monthly).map(p=>({...p,sl:p.so<=0?"Sold Out":`~${p.so} mo.`})),[{key:"name",label:"Project"},{key:"dev",label:"Developer"},{key:"launch",label:"Launch"},{key:"units",label:"Units"},{key:"sold",label:"Sold"},{key:"rem",label:"Remaining"},{key:"monthly",label:"Monthly %"},{key:"sl",label:"Est. Sell-Out"}],"sellout")} dlLabel="Export CSV"/>
@@ -439,16 +468,16 @@ export default function App(){
                 <thead style={{background:"#003F2D"}}><tr>{["Project","Developer","Launch","Units","Sold","Rem.","Monthly","Est. Sell-Out"].map(h=><th key={h} style={{padding:"9px 12px",color:"#B0D4CC",fontSize:10,textTransform:"uppercase",letterSpacing:1,textAlign:"left"}}>{h}</th>)}</tr></thead>
                 <tbody>{[...en].sort((a,b)=>b.monthly-a.monthly).map((p,i)=>{
                   const sl=p.monthly<=0?"N/A":p.so<=0?"Sold Out":`~${p.so} mo.`;
-                  const sc2=p.so<=0?GR:p.so<=12?G:RE;
-                  return (<tr key={i} style={{borderBottom:"1px solid "+BD,background:p.dev==="Exsim"?"#F0FAF5":i%2===0?"#FFFFFF":"#F6F8F7"}}>
-                    <td style={td({color:p.dev==="Exsim"?G:TX,fontWeight:p.dev==="Exsim"?700:400,fontSize:12})}>{p.name}</td>
+                  const sc3=p.so<=0?GR:p.so<=12?G:RE;
+                  return (<tr key={i} style={{borderBottom:"1px solid "+BD,background:i%2===0?"#FFFFFF":"#F6F8F7"}}>
+                    <td style={td({color:TX,fontSize:12})}>{p.name}</td>
                     <td style={td({color:MU,fontSize:12})}>{p.dev}</td>
                     <td style={td({color:MU})}>{p.launch}</td>
                     <td style={td({color:MU})}>{p.units}</td>
                     <td style={td({color:TX})}>{p.sold}</td>
                     <td style={td({color:MU})}>{p.rem}</td>
                     <td style={td({color:p.monthly>=3?GR:p.monthly>=1?G:RE,fontWeight:700})}>{p.monthly}%</td>
-                    <td style={td()}><Badge color={sc2} text={sl}/></td>
+                    <td style={td()}><Badge color={sc3} text={sl}/></td>
                   </tr>);
                 })}</tbody>
               </table>
@@ -456,13 +485,13 @@ export default function App(){
           </div>
         )}
 
-        {/* ── EXSIM PORTFOLIO ── */}
-        {tab==="Exsim Portfolio" && (
+        {/* ── DEVELOPER SPOTLIGHT ── */}
+        {tab==="Developer Spotlight" && (
           <div>
             <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:14,marginBottom:16}}>
-              {exsim.map((p,i)=>{const c=[G,GR,BL][i];return(
+              {spotlight.map((p,i)=>{const c=[G,GR,BL][i];return(
                 <div key={i} style={{background:CD,border:"1px solid "+BD,borderRadius:12,padding:18,borderTop:"3px solid "+c}}>
-                  <div style={{fontSize:10,color:MU,letterSpacing:2,textTransform:"uppercase",marginBottom:6}}>Exsim Project {i+1}</div>
+                  <div style={{fontSize:10,color:MU,letterSpacing:2,textTransform:"uppercase",marginBottom:6}}>{p.dev}</div>
                   <div style={{fontSize:15,fontWeight:700,color:c,marginBottom:12}}>{p.name}</div>
                   <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
                     {[["Total Units",p.units],["Units Sold",p.sold],["Sales Rate",pct(p.rate)],["Monthly Abs.",`${p.monthly}%`],["PSF Range",`RM ${p.psfMin}–${p.psfMax}`],["Completion",p.comp]].map(([l,v],j)=>(
@@ -477,21 +506,22 @@ export default function App(){
               );})}
             </div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:14}}>
-              <CardHead title="Exsim vs Market Benchmarks" onDl={()=>dlPNG("ch-bench","exsim_benchmark")} dlLabel="Download PNG"/>
+              <CardHead title="Developer vs Market Benchmarks" onDl={()=>dlPNG("ch-bench","dev_benchmark",[{c:"#DDE4E2",l:"Market Low"},{c:"#AAC0BC",l:"Market Avg"},{c:GR,l:"Market Top"},{c:G,l:"Spotlight Projects"}])} dlLabel="Download PNG"/>
               <div id="ch-bench" style={{padding:"14px 18px"}}>
                 <ResponsiveContainer width="100%" height={200}>
-                  <BarChart data={[{n:"Market Low",v:0.2},{n:"Market Avg",v:parseFloat(avgR)},{n:"Market Top",v:99.83},...exsim.map(p=>({n:p.name.replace(" Suites","").replace("The ",""),v:p.rate}))]}>
+                  <BarChart data={[{n:"Market Low",v:0.2},{n:"Market Avg",v:parseFloat(avgR)},{n:"Market Top",v:99.83},...spotlight.map(p=>({n:p.name.replace(" Suites","").replace("The ",""),v:p.rate}))]}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#DDE4E2"/>
                     <XAxis dataKey="n" tick={{fill:MU,fontSize:10}}/>
                     <YAxis tick={{fill:MU,fontSize:11}} unit="%"/>
                     <Tooltip content={<BenchTip/>}/>
                     <Bar dataKey="v" radius={[4,4,0,0]}>
                       <Cell fill="#DDE4E2"/><Cell fill="#AAC0BC"/><Cell fill={GR}/>
-                      {exsim.map((_,i)=><Cell key={i} fill={G}/>)}
+                      {spotlight.map((_,i)=><Cell key={i} fill={G}/>)}
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>
               </div>
+              <LegendRow items={[{c:"#DDE4E2",l:"Market Low"},{c:"#AAC0BC",l:"Market Avg"},{c:GR,l:"Market Top"},{c:G,l:"Spotlight Projects"}]}/>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
               <div style={{background:"#F0FAF5",border:"1px solid #B8DECE",borderRadius:10,padding:16}}>
@@ -520,7 +550,7 @@ export default function App(){
         {tab==="Location Map" && (
           <div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:16}}>
-              <CardHead title="Project Location Map — Penang Island" sub="Hover markers · Green ★ = Exsim · Color = performance" onDl={()=>dlPNG("ch-map","penang_map")} dlLabel="Download PNG"/>
+              <CardHead title="Project Location Map — Penang Island" sub="Hover over markers · Color = sales performance" onDl={()=>dlPNG("ch-map","penang_map")} dlLabel="Download PNG"/>
               <div id="ch-map" style={{padding:"0 18px 18px"}}>
                 <svg viewBox="0 0 580 400" style={{width:"100%",height:"auto",display:"block",borderRadius:8}}>
                   <rect width="580" height="400" fill="#D6E8E4"/>
@@ -542,20 +572,19 @@ export default function App(){
                   ))}
                   {en.map((p,i)=>{
                     const c=CRD[p.name];if(!c)return null;
-                    const isEx=p.dev==="Exsim",isH=hov===p.name;
+                    const isH=hov===p.name;
                     const r=Math.max(6,Math.min(13,p.units/55));
-                    const fill=isEx?G:p.rate>=75?GR:p.rate>=40?BL:RE;
+                    const fill=rc(p.rate);
                     return (
                       <g key={i} onMouseEnter={()=>setHov(p.name)} onMouseLeave={()=>setHov(null)} style={{cursor:"pointer"}}>
                         {isH && <circle cx={c.x} cy={c.y} r={r+10} fill={fill} opacity={0.2}/>}
                         <circle cx={c.x} cy={c.y} r={isH?r+3:r} fill={fill} opacity={isH?1:0.85} stroke={"#FFFFFF"} strokeWidth={isH?2:1.5}/>
-                        {isEx && <text x={c.x} y={c.y+1} textAnchor="middle" dominantBaseline="middle" fill="#FFFFFF" fontSize="8" fontWeight="bold">★</text>}
                       </g>
                     );
                   })}
                   <MapHover p={hovP} c={hovC}/>
-                  {[{c:G,l:"Exsim ★"},{c:GR,l:"≥75%"},{c:BL,l:"40–74%"},{c:RE,l:"<40%"}].map((it,i)=>(
-                    <g key={i}><circle cx={18+i*78} cy={387} r={5} fill={it.c}/><text x={27+i*78} y={391} fill={TX} fontSize="9" fontFamily="sans-serif">{it.l}</text></g>
+                  {[{c:GR,l:"≥75% Take-Up"},{c:BL,l:"40–74% Take-Up"},{c:RE,l:"<40% Take-Up"}].map((it,i)=>(
+                    <g key={i}><circle cx={18+i*110} cy={387} r={5} fill={it.c}/><text x={27+i*110} y={391} fill={TX} fontSize="9" fontFamily="sans-serif">{it.l}</text></g>
                   ))}
                 </svg>
               </div>
@@ -579,12 +608,8 @@ export default function App(){
         {tab==="Value Positioning" && (
           <div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:16}}>
-              <CardHead title="Floor Area vs PSF — Value Positioning Matrix" sub="X=avg size · Y=avg PSF · Bubble=units" onDl={()=>dlPNG("ch-scat","value_positioning")} dlLabel="Download PNG"/>
+              <CardHead title="Floor Area vs PSF — Value Positioning Matrix" sub="X=avg size · Y=avg PSF · Bubble=units · Color=sales performance" onDl={()=>dlPNG("ch-scat","value_positioning",PERF_LEGEND)} dlLabel="Download PNG"/>
               <div id="ch-scat" style={{padding:"18px 18px 8px"}}>
-                <div style={{display:"flex",gap:20,marginBottom:10}}>
-                  <span style={{display:"flex",alignItems:"center",gap:6,fontSize:12,color:MU}}><span style={{display:"inline-block",width:10,height:10,borderRadius:"50%",background:BL}}/> Other Developers</span>
-                  <span style={{display:"flex",alignItems:"center",gap:6,fontSize:12,color:MU}}><span style={{display:"inline-block",width:10,height:10,borderRadius:"50%",background:G}}/> Exsim Projects</span>
-                </div>
                 <ResponsiveContainer width="100%" height={360}>
                   <ScatterChart margin={{top:10,right:40,bottom:30,left:20}}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#DDE4E2"/>
@@ -594,11 +619,13 @@ export default function App(){
                     <Tooltip content={<ScatTip/>}/>
                     <ReferenceLine x={900} stroke={BD} strokeDasharray="4 4" label={{value:"← Compact | Spacious →",fill:MU,fontSize:9,position:"top"}}/>
                     <ReferenceLine y={1300} stroke={BD} strokeDasharray="4 4" label={{value:"↑ Premium",fill:MU,fontSize:9,position:"right"}}/>
-                    <Scatter name="Other Developers" data={scO} fill={BL} fillOpacity={0.65}/>
-                    <Scatter name="Exsim Projects" data={scE} fill={G} fillOpacity={0.95}/>
+                    <Scatter name="All Projects" data={sc2}>
+                      {sc2.map((d,i)=><Cell key={i} fill={rc(d.rate)} fillOpacity={0.75}/>)}
+                    </Scatter>
                   </ScatterChart>
                 </ResponsiveContainer>
               </div>
+              <LegendRow items={PERF_LEGEND}/>
               <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,margin:"0 18px 18px"}}>
                 {[{q:"🏢 Compact Premium",d:"Small, high-PSF. Investor & yield appeal.",c:G},{q:"🌟 Spacious Premium",d:"Large luxury. HNW segment.",c:G2},{q:"💰 Compact Value",d:"Affordable compact. High volume.",c:BL},{q:"🏡 Spacious Value",d:"Large but accessible. Owner-occ.",c:GR}].map((q,i)=>(
                   <div key={i} style={{background:"#F6F8F7",borderRadius:8,padding:"10px 12px",border:"1px solid "+BD}}>
@@ -608,16 +635,17 @@ export default function App(){
                 ))}
               </div>
             </div>
-            <div style={{background:"#F0FAF5",border:"1px solid #B8DECE",borderRadius:10,padding:16}}>
+            <div style={{background:"#F6F8F7",border:"1px solid "+BD,borderRadius:10,padding:16}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-                <div style={{fontSize:13,fontWeight:700,color:GR}}>📊 Exsim Positioning Insight</div>
-                <DBtn onClick={()=>dlCSV(exsim.map(p=>({name:p.name,sfMid:p.sfMid,psfMid:p.psfMid,quad:p.sfMid>900&&p.psfMid>1300?"Spacious Premium":p.sfMid<=900&&p.psfMid>1300?"Compact Premium":p.sfMid>900?"Spacious Value":"Compact Value",rate:p.rate})),[{key:"name",label:"Project"},{key:"sfMid",label:"Avg SF"},{key:"psfMid",label:"Avg PSF"},{key:"quad",label:"Quadrant"},{key:"rate",label:"Sales Rate %"}],"exsim_positioning")} label="Export CSV"/>
+                <div style={{fontSize:13,fontWeight:700,color:GR}}>📊 Market Positioning Insights</div>
+                <DBtn onClick={()=>dlCSV([...en].sort((a,b)=>b.rate-a.rate).slice(0,6).map(p=>({name:p.name,dev:p.dev,sfMid:p.sfMid,psfMid:p.psfMid,quad:p.sfMid>900&&p.psfMid>1300?"Spacious Premium":p.sfMid<=900&&p.psfMid>1300?"Compact Premium":p.sfMid>900?"Spacious Value":"Compact Value",rate:p.rate})),[{key:"name",label:"Project"},{key:"dev",label:"Developer"},{key:"sfMid",label:"Avg SF"},{key:"psfMid",label:"Avg PSF"},{key:"quad",label:"Quadrant"},{key:"rate",label:"Sales Rate %"}],"positioning_insights")} label="Export CSV"/>
               </div>
               <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12}}>
-                {exsim.map((p,i)=>{
+                {[...en].sort((a,b)=>b.rate-a.rate).slice(0,6).map((p,i)=>{
                   const quad=p.sfMid>900&&p.psfMid>1300?"Spacious Premium":p.sfMid<=900&&p.psfMid>1300?"Compact Premium":p.sfMid>900?"Spacious Value":"Compact Value";
                   return (<div key={i} style={{background:"#FFFFFF",borderRadius:8,padding:12,border:"1px solid "+BD}}>
-                    <div style={{fontSize:12,fontWeight:700,color:G,marginBottom:4}}>{p.name}</div>
+                    <div style={{fontSize:12,fontWeight:700,color:GR,marginBottom:2}}>{p.name}</div>
+                    <div style={{fontSize:11,color:MU,marginBottom:4}}>{p.dev}</div>
                     <div style={{fontSize:11,color:MU,marginBottom:6}}>Avg {p.sfMid.toLocaleString()} sf · RM {p.psfMid.toLocaleString()} psf</div>
                     <div style={{fontSize:11,fontWeight:600,color:quad.includes("Premium")?G:BL}}>📍 {quad}</div>
                     <div style={{fontSize:11,color:rc(p.rate),marginTop:4}}>Sales Rate: {pct(p.rate)}</div>
@@ -651,9 +679,9 @@ export default function App(){
                 <div style={{padding:"14px 18px"}}>
                   <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:14}}>
                     {s.proj.map((p,i)=>(
-                      <div key={i} style={{background:"#FFFFFF",borderRadius:8,padding:"10px 14px",border:"1px solid "+(p.dev==="Exsim"?G+"88":BD),display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                      <div key={i} style={{background:"#FFFFFF",borderRadius:8,padding:"10px 14px",border:"1px solid "+BD,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                         <div>
-                          <div style={{fontSize:12,fontWeight:p.dev==="Exsim"?700:400,color:p.dev==="Exsim"?G:TX}}>{p.name}{p.dev==="Exsim"?" ★":""}</div>
+                          <div style={{fontSize:12,color:TX}}>{p.name}</div>
                           <div style={{fontSize:10,color:MU,marginTop:2}}>{fmt(p.pMin)} – {fmt(p.pMax)} · {p.units} units</div>
                         </div>
                         <div style={{textAlign:"right"}}>
@@ -672,13 +700,13 @@ export default function App(){
             ))}
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden"}}>
               <div style={{padding:"14px 18px",borderBottom:"1px solid "+BD,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                <div style={{fontSize:13,fontWeight:700,color:GR}}>🎯 Exsim Segment Strategy</div>
-                <DBtn onClick={()=>dlCSV([{name:"Noordinz Suites",seg:"Entry Luxury",note:"99.83% sold. Consider higher ASP on future phases."},{name:"The Lighthauz",seg:"Mid Luxury",note:"469 units absorbed 2025–1H26. Differentiate via design."},{name:"Keeperz Suites",seg:"Entry–Mid Luxury",note:"Launched at RM 1,723 max PSF. Lead with investor-yield narrative."}],[{key:"name",label:"Project"},{key:"seg",label:"Segment"},{key:"note",label:"Strategy Note"}],"exsim_strategy")} label="Export CSV"/>
+                <div style={{fontSize:13,fontWeight:700,color:GR}}>🎯 Top Performer Strategy Notes</div>
+                <DBtn onClick={()=>dlCSV([{name:"Noordinz Suites",seg:"Entry Luxury",note:"99.83% sold. Consider higher ASP on future phases."},{name:"The Lighthauz",seg:"Mid Luxury",note:"469 units absorbed 2025–1H26. Differentiate via design."},{name:"Keeperz Suites",seg:"Entry–Mid Luxury",note:"Launched at RM 1,723 max PSF. Lead with investor-yield narrative."}],[{key:"name",label:"Project"},{key:"seg",label:"Segment"},{key:"note",label:"Strategy Note"}],"performer_strategy")} label="Export CSV"/>
               </div>
               <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,padding:16}}>
-                {[{name:"Noordinz Suites",seg:"Entry Luxury",note:"99.83% sold — validates strong sub-RM 1M demand. Consider higher ASP on future phases.",c:GR},{name:"The Lighthauz",seg:"Mid Luxury",note:"469 units absorbed 2025–1H26. Differentiate via design and lifestyle programming.",c:G},{name:"Keeperz Suites",seg:"Entry–Mid Luxury",note:"Launched at highest Exsim PSF (RM 1,723 max). Lead with investor-yield narrative.",c:BL}].map((item,i)=>(
+                {[{name:"Noordinz Suites",seg:"Entry Luxury",note:"99.83% sold — validates strong sub-RM 1M demand. Consider higher ASP on future phases.",c:GR},{name:"The Lighthauz",seg:"Mid Luxury",note:"469 units absorbed 2025–1H26. Differentiate via design and lifestyle programming.",c:G},{name:"Keeperz Suites",seg:"Entry–Mid Luxury",note:"Launched at highest PSF in segment (RM 1,723 max). Lead with investor-yield narrative.",c:BL}].map((item,i)=>(
                   <div key={i} style={{background:"#FFFFFF",borderRadius:8,padding:14,border:"1px solid "+BD}}>
-                    <div style={{fontSize:12,fontWeight:700,color:G,marginBottom:2}}>{item.name}</div>
+                    <div style={{fontSize:12,fontWeight:700,color:GR,marginBottom:2}}>{item.name}</div>
                     <div style={{fontSize:10,color:item.c,marginBottom:8,fontWeight:600}}>{item.seg}</div>
                     <div style={{fontSize:11,color:MU,lineHeight:1.7}}>{item.note}</div>
                   </div>
