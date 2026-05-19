@@ -262,7 +262,7 @@ export default function App(){
         {tab==="Sales Performance" && (
           <div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:16}}>
-              <CardHead title="Sales Take-Up Rate by Project (%)" sub="Gold=Exsim · Green ≥75% · Blue 40–74% · Red <40%" onDl={()=>dlPNG("ch-sales","sales_rate")} dlLabel="Download PNG"/>
+              <CardHead title="Sales Take-Up Rate by Project (%)" sub="Green=Exsim · Dark Green ≥75% · Sage 40–74% · Red <40%" onDl={()=>dlPNG("ch-sales","sales_rate")} dlLabel="Download PNG"/>
               <div id="ch-sales" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={430}>
                   <BarChart data={bD} layout="vertical" margin={{left:8}}>
@@ -298,7 +298,7 @@ export default function App(){
         {tab==="Pricing" && (
           <div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:16}}>
-              <CardHead title="PSF Price Range by Project (RM)" sub="Min–Max PSF · Gold=Exsim" onDl={()=>dlPNG("ch-psf","psf_range")} dlLabel="Download PNG"/>
+              <CardHead title="PSF Price Range by Project (RM)" sub="Min–Max PSF · Green=Exsim" onDl={()=>dlPNG("ch-psf","psf_range")} dlLabel="Download PNG"/>
               <div id="ch-psf" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={430}>
                   <BarChart data={[...en].sort((a,b)=>a.psfMid-b.psfMid).map(p=>({name:p.name,full:p.name,dev:p.dev,base:p.psfMin,range:p.psfMax-p.psfMin,mid:p.psfMid,lo:p.psfMin,hi:p.psfMax}))} layout="vertical" margin={{left:8}}>
@@ -419,7 +419,7 @@ export default function App(){
               </table>
             </div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:14}}>
-              <CardHead title="Monthly Absorption Rate — All Projects" sub="Sales Rate ÷ Months since launch · Gold=Exsim" onDl={()=>dlPNG("ch-monthly","monthly_abs")} dlLabel="Download PNG"/>
+              <CardHead title="Monthly Absorption Rate — All Projects" sub="Sales Rate ÷ Months since launch · Green=Exsim" onDl={()=>dlPNG("ch-monthly","monthly_abs")} dlLabel="Download PNG"/>
               <div id="ch-monthly" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={430}>
                   <BarChart data={aB} layout="vertical" margin={{left:8}}>
@@ -520,7 +520,7 @@ export default function App(){
         {tab==="Location Map" && (
           <div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:16}}>
-              <CardHead title="Project Location Map — Penang Island" sub="Hover markers · Gold ★ = Exsim · Color = performance" onDl={()=>dlPNG("ch-map","penang_map")} dlLabel="Download PNG"/>
+              <CardHead title="Project Location Map — Penang Island" sub="Hover markers · Green ★ = Exsim · Color = performance" onDl={()=>dlPNG("ch-map","penang_map")} dlLabel="Download PNG"/>
               <div id="ch-map" style={{padding:"0 18px 18px"}}>
                 <svg viewBox="0 0 580 400" style={{width:"100%",height:"auto",display:"block",borderRadius:8}}>
                   <rect width="580" height="400" fill="#D8EEE8"/>
