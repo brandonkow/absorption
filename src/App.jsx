@@ -46,8 +46,15 @@ function CardHead({title,sub,onDl,dlLabel}){
     </div>
   );
 }
-function LegendRow({items}){
+const DISCLAIMER="* Monthly absorption figures are derived from annualized take-up data (total units sold ÷ months since launch). For reference purposes only.";
+function Disclaimer(){
   return (
+    <div style={{fontSize:10,color:MU,padding:"6px 18px 10px",fontStyle:"italic",borderTop:"1px solid "+BD,lineHeight:1.5}}>
+      {DISCLAIMER}
+    </div>
+  );
+}
+function LegendRow({items}){  return (
     <div style={{display:"flex",gap:18,fontSize:11,color:MU,padding:"0 18px 10px",flexWrap:"wrap"}}>
       {items.map((it,i)=>(
         <span key={i} style={{display:"flex",alignItems:"center",gap:5}}>
@@ -469,6 +476,7 @@ export default function App(){
                   ))}
                 </div>
               </div>
+              <Disclaimer/>
             </div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:14}}>
               <CardHead title="Annual Breakdown" sub="— = N/A or pre-launch" onDl={()=>dlCSV(ANN.map(p=>({...p,tot:(p.y4||0)+(p.y5||0)+(p.y6||0)})),[{key:"name",label:"Project"},{key:"dev",label:"Developer"},{key:"y4",label:"2024"},{key:"y5",label:"2025"},{key:"y6",label:"1H 2026"},{key:"tot",label:"Total"}],"annual_breakdown")} dlLabel="Export CSV"/>
@@ -513,6 +521,7 @@ export default function App(){
                 </ResponsiveContainer>
               </div>
               <LegendRow items={MONTHLY_LEGEND}/>
+              <Disclaimer/>
             </div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:14}}>
               <CardHead title="Monthly Unit Absorption — All Projects" sub="Avg units absorbed per month since launch · Color = absorption rate tier" onDl={()=>dlPNG("ch-munits","monthly_units",MONTHLY_LEGEND)} dlLabel="Download PNG"/>
@@ -529,6 +538,7 @@ export default function App(){
                 </ResponsiveContainer>
               </div>
               <LegendRow items={MONTHLY_LEGEND}/>
+              <Disclaimer/>
             </div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:14}}>
               <CardHead title="Total Monthly Units Sold — By Developer" sub={`Combined market: ${totalMU} units/month across all developers`} onDl={()=>dlPNG("ch-devmu","dev_monthly_units",[{c:G,l:`Market total: ${totalMU} u/mo`},{c:GR,l:`Avg per developer: ${(totalMU/devMU.length).toFixed(1)} u/mo`}])} dlLabel="Download PNG"/>
@@ -546,6 +556,7 @@ export default function App(){
                   </BarChart>
                 </ResponsiveContainer>
               </div>
+              <Disclaimer/>
             </div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden"}}>
               <CardHead title="Absorption Detail & Sell-Out Projection" onDl={()=>dlCSV([...en].sort((a,b)=>b.monthly-a.monthly).map(p=>({...p,sl:p.so<=0?"Sold Out":`~${p.so} mo.`})),[{key:"name",label:"Project"},{key:"dev",label:"Developer"},{key:"launch",label:"Launch"},{key:"units",label:"Units"},{key:"sold",label:"Sold"},{key:"rem",label:"Remaining"},{key:"monthly",label:"Monthly %"},{key:"moUnits",label:"Monthly Units"},{key:"sl",label:"Est. Sell-Out"}],"sellout")} dlLabel="Export CSV"/>
@@ -567,6 +578,7 @@ export default function App(){
                   </tr>);
                 })}</tbody>
               </table>
+              <Disclaimer/>
             </div>
           </div>
         )}
