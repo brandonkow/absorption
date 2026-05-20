@@ -315,13 +315,13 @@ export default function App(){
               <CardHead title="Sales Take-Up Rate by Project (%)" sub="Dark Green ≥75% · Sage 40–74% · Red <40%" onDl={()=>dlPNG("ch-sales","sales_rate",PERF_LEGEND)} dlLabel="Download PNG"/>
               <div id="ch-sales" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={430}>
-                  <BarChart data={bD} layout="vertical" margin={{left:8}}>
+                  <BarChart data={bD} layout="vertical" margin={{top:10,right:52,bottom:10,left:8}}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#DDE4E2" horizontal={false}/>
-                    <XAxis type="number" domain={[0,100]} tick={{fill:MU,fontSize:11}} unit="%"/>
+                    <XAxis type="number" domain={[0,100]} tick={{fill:MU,fontSize:11}} unit="%" tickCount={6}/>
                     <YAxis dataKey="name" type="category" tick={{fill:MU,fontSize:9}} width={190} interval={0}/>
                     <Tooltip content={<BarTip/>}/>
                     <ReferenceLine x={parseFloat(avgR)} stroke={G} strokeDasharray="4 4" label={{value:`Avg ${avgR}%`,fill:G,fontSize:10,position:"top"}}/>
-                    <Bar dataKey="v" radius={[0,4,4,0]}>{bD.map((d,i)=><Cell key={i} fill={d.color}/>)}</Bar>
+                    <Bar dataKey="v" radius={[0,4,4,0]} label={({x,y,width,height,value})=><text x={x+width+5} y={y+height/2+4} fill={TX} fontSize={9} fontWeight="600">{value}%</text>}>{bD.map((d,i)=><Cell key={i} fill={d.color}/>)}</Bar>
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -352,13 +352,13 @@ export default function App(){
               <CardHead title="PSF Price Range by Project (RM)" sub="Min–Max range · Color indicates sales performance" onDl={()=>dlPNG("ch-psf","psf_range",PERF_LEGEND)} dlLabel="Download PNG"/>
               <div id="ch-psf" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={430}>
-                  <BarChart data={[...en].sort((a,b)=>a.psfMid-b.psfMid).map(p=>({name:p.name,full:p.name,dev:p.dev,base:p.psfMin,range:p.psfMax-p.psfMin,mid:p.psfMid,lo:p.psfMin,hi:p.psfMax,rate:p.rate}))} layout="vertical" margin={{left:8}}>
+                  <BarChart data={[...en].sort((a,b)=>a.psfMid-b.psfMid).map(p=>({name:p.name,full:p.name,dev:p.dev,base:p.psfMin,range:p.psfMax-p.psfMin,mid:p.psfMid,lo:p.psfMin,hi:p.psfMax,rate:p.rate}))} layout="vertical" margin={{top:10,right:80,bottom:10,left:8}}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#DDE4E2" horizontal={false}/>
-                    <XAxis type="number" tick={{fill:MU,fontSize:11}} tickFormatter={v=>`RM ${v}`}/>
+                    <XAxis type="number" tick={{fill:MU,fontSize:11}} tickFormatter={v=>`RM ${v}`} tickCount={5}/>
                     <YAxis dataKey="name" type="category" tick={{fill:MU,fontSize:9}} width={190} interval={0}/>
                     <Tooltip content={<PSFTip/>}/>
                     <Bar dataKey="base" stackId="a" fill="transparent"/>
-                    <Bar dataKey="range" stackId="a" radius={[0,4,4,0]}>{[...en].sort((a,b)=>a.psfMid-b.psfMid).map((p,i)=><Cell key={i} fill={rc(p.rate)} fillOpacity={0.8}/>)}</Bar>
+                    <Bar dataKey="range" stackId="a" radius={[0,4,4,0]} label={({x,y,width,height,payload})=>payload?.hi?<text x={x+width+5} y={y+height/2+4} fill={MU} fontSize={8}>RM {payload.lo?.toLocaleString()}–{payload.hi?.toLocaleString()}</text>:null}>{[...en].sort((a,b)=>a.psfMid-b.psfMid).map((p,i)=><Cell key={i} fill={rc(p.rate)} fillOpacity={0.8}/>)}</Bar>
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -403,10 +403,10 @@ export default function App(){
                 <CardHead title="Annual Market Total" onDl={()=>dlPNG("ch-atot","annual_total",ANN_LEGEND)} dlLabel="PNG"/>
                 <div id="ch-atot" style={{padding:"14px 18px"}}>
                   <ResponsiveContainer width="100%" height={170}>
-                    <BarChart data={ATOT}>
+                    <BarChart data={ATOT} margin={{top:26,right:20,bottom:5,left:10}}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#DDE4E2"/>
                       <XAxis dataKey="p" tick={{fill:MU,fontSize:11}}/>
-                      <YAxis tick={{fill:MU,fontSize:11}}/>
+                      <YAxis tick={{fill:MU,fontSize:10}} width={44}/>
                       <Tooltip content={<AnnTotTip/>}/>
                       <Bar dataKey="u" radius={[4,4,0,0]} label={({x,y,width,value})=><text x={x+width/2} y={y-5} fill={TX} textAnchor="middle" fontSize={11} fontWeight="600">{value.toLocaleString()}</text>}><Cell fill={BL}/><Cell fill={G}/><Cell fill={GR}/></Bar>
                     </BarChart>
@@ -430,7 +430,7 @@ export default function App(){
                     ))}
                   </div>
                   <ResponsiveContainer width="100%" height={420}>
-                    <BarChart data={ANN} layout="vertical" margin={{left:4}}>
+                    <BarChart data={ANN} layout="vertical" margin={{top:5,right:50,bottom:5,left:4}}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#DDE4E2" horizontal={false}/>
                       <XAxis type="number" tick={{fill:MU,fontSize:10}}/>
                       <YAxis dataKey="sh" type="category" width={90} interval={0} tick={{fill:MU,fontSize:9}}/>
@@ -444,10 +444,10 @@ export default function App(){
               </div>
             </div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:14}}>
-              <CardHead title="Monthly Units Absorbed — Market Total (Jan 2024 – Jun 2026)" sub="Estimated from annual totals · Step change reflects annual absorption rate shift" onDl={()=>dlPNG("ch-bymonth","monthly_trend")} dlLabel="Download PNG"/>
+              <CardHead title="Monthly Units Absorbed — Market Total (Jan 2024 – Jun 2026)" sub="Estimated from annual totals · Step change reflects annual absorption rate shift" onDl={()=>dlPNG("ch-bymonth","monthly_trend",[{c:BL,l:`2024 avg: ${byMonth[0]?.v} units/mo`},{c:G,l:`2025 avg: ${byMonth[12]?.v} units/mo`},{c:GR,l:`1H '26 avg: ${byMonth[24]?.v} units/mo`}])} dlLabel="Download PNG"/>
               <div id="ch-bymonth" style={{padding:"18px 18px 8px"}}>
-                <ResponsiveContainer width="100%" height={240}>
-                  <AreaChart data={byMonth} margin={{top:10,right:16,bottom:32,left:8}}>
+                <ResponsiveContainer width="100%" height={260}>
+                  <AreaChart data={byMonth} margin={{top:10,right:20,bottom:62,left:14}}>
                     <defs>
                       <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor={GR} stopOpacity={0.25}/>
@@ -455,11 +455,11 @@ export default function App(){
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="#DDE4E2"/>
-                    <XAxis dataKey="period" tick={{fill:MU,fontSize:8.5}} interval={1} angle={-40} textAnchor="end" height={48}/>
-                    <YAxis tick={{fill:MU,fontSize:11}} label={{value:"Units / month",angle:-90,position:"insideLeft",fill:MU,fontSize:10}}/>
+                    <XAxis dataKey="period" tick={{fill:MU,fontSize:9}} interval={2} angle={-50} textAnchor="end" height={66}/>
+                    <YAxis tick={{fill:MU,fontSize:10}} width={46}/>
                     <Tooltip content={<ByMonthTip/>}/>
-                    <ReferenceLine x="Jan '25" stroke={BD} strokeDasharray="3 3" label={{value:"2025 →",fill:MU,fontSize:9,position:"insideTopRight"}}/>
-                    <ReferenceLine x="Jan '26" stroke={BD} strokeDasharray="3 3" label={{value:"2026 →",fill:MU,fontSize:9,position:"insideTopRight"}}/>
+                    <ReferenceLine x="Jan '25" stroke={BD} strokeDasharray="3 3" label={{value:"↑ 2025",fill:MU,fontSize:9,position:"insideTopLeft"}}/>
+                    <ReferenceLine x="Jan '26" stroke={BD} strokeDasharray="3 3" label={{value:"↑ 1H 2026",fill:MU,fontSize:9,position:"insideTopLeft"}}/>
                     <Area type="stepAfter" dataKey="v" stroke={GR} strokeWidth={2.5} fill="url(#areaGrad)" dot={false} activeDot={{r:4,fill:GR}}/>
                   </AreaChart>
                 </ResponsiveContainer>
@@ -502,13 +502,13 @@ export default function App(){
               <CardHead title="Monthly Absorption Rate — All Projects" sub="Sales Rate ÷ Months since launch" onDl={()=>dlPNG("ch-monthly","monthly_abs",MONTHLY_LEGEND)} dlLabel="Download PNG"/>
               <div id="ch-monthly" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={430}>
-                  <BarChart data={aB} layout="vertical" margin={{left:8}}>
+                  <BarChart data={aB} layout="vertical" margin={{top:10,right:55,bottom:10,left:8}}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#DDE4E2" horizontal={false}/>
-                    <XAxis type="number" tick={{fill:MU,fontSize:11}} unit="%"/>
+                    <XAxis type="number" tick={{fill:MU,fontSize:11}} unit="%" tickCount={6}/>
                     <YAxis dataKey="name" type="category" tick={{fill:MU,fontSize:9}} width={190} interval={0}/>
                     <Tooltip content={<AbsTip/>}/>
-                    <ReferenceLine x={parseFloat(avgM)} stroke={G} strokeDasharray="4 4" label={{value:`Avg ${avgM}%`,fill:G,fontSize:10}}/>
-                    <Bar dataKey="v" radius={[0,4,4,0]}>{aB.map((d,i)=><Cell key={i} fill={d.color}/>)}</Bar>
+                    <ReferenceLine x={parseFloat(avgM)} stroke={G} strokeDasharray="4 4" label={{value:`Avg ${avgM}%`,fill:G,fontSize:10,position:"top"}}/>
+                    <Bar dataKey="v" radius={[0,4,4,0]} label={({x,y,width,height,value})=><text x={x+width+5} y={y+height/2+4} fill={TX} fontSize={9} fontWeight="600">{value}%</text>}>{aB.map((d,i)=><Cell key={i} fill={d.color}/>)}</Bar>
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -518,9 +518,9 @@ export default function App(){
               <CardHead title="Monthly Unit Absorption — All Projects" sub="Avg units absorbed per month since launch · Color = absorption rate tier" onDl={()=>dlPNG("ch-munits","monthly_units",MONTHLY_LEGEND)} dlLabel="Download PNG"/>
               <div id="ch-munits" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={430}>
-                  <BarChart data={aMU} layout="vertical" margin={{left:8}}>
+                  <BarChart data={aMU} layout="vertical" margin={{top:10,right:62,bottom:10,left:8}}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#DDE4E2" horizontal={false}/>
-                    <XAxis type="number" tick={{fill:MU,fontSize:11}} label={{value:"Units / month",position:"insideBottom",offset:-2,fill:MU,fontSize:10}}/>
+                    <XAxis type="number" tick={{fill:MU,fontSize:11}} tickCount={6}/>
                     <YAxis dataKey="name" type="category" tick={{fill:MU,fontSize:9}} width={190} interval={0}/>
                     <Tooltip content={<AbsUnitTip/>}/>
                     <ReferenceLine x={parseFloat(avgMU)} stroke={G} strokeDasharray="4 4" label={{value:`Avg ${avgMU}`,fill:G,fontSize:10,position:"top"}}/>
@@ -531,13 +531,13 @@ export default function App(){
               <LegendRow items={MONTHLY_LEGEND}/>
             </div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:14}}>
-              <CardHead title="Total Monthly Units Sold — By Developer" sub={`Combined market: ${totalMU} units/month across all developers`} onDl={()=>dlPNG("ch-devmu","dev_monthly_units")} dlLabel="Download PNG"/>
+              <CardHead title="Total Monthly Units Sold — By Developer" sub={`Combined market: ${totalMU} units/month across all developers`} onDl={()=>dlPNG("ch-devmu","dev_monthly_units",[{c:G,l:`Market total: ${totalMU} u/mo`},{c:GR,l:`Avg per developer: ${(totalMU/devMU.length).toFixed(1)} u/mo`}])} dlLabel="Download PNG"/>
               <div id="ch-devmu" style={{padding:"18px 18px 8px"}}>
-                <ResponsiveContainer width="100%" height={260}>
-                  <BarChart data={devMU} margin={{top:18,right:24,bottom:8,left:8}}>
+                <ResponsiveContainer width="100%" height={290}>
+                  <BarChart data={devMU} margin={{top:20,right:24,bottom:70,left:50}}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#DDE4E2" vertical={false}/>
-                    <XAxis dataKey="name" tick={{fill:MU,fontSize:10}} interval={0} angle={-20} textAnchor="end" height={48}/>
-                    <YAxis tick={{fill:MU,fontSize:11}} label={{value:"Units / month",angle:-90,position:"insideLeft",fill:MU,fontSize:10}}/>
+                    <XAxis dataKey="name" tick={{fill:MU,fontSize:9}} interval={0} angle={-45} textAnchor="end" height={74}/>
+                    <YAxis tick={{fill:MU,fontSize:10}} width={46}/>
                     <Tooltip content={<DevMUTip/>}/>
                     <ReferenceLine y={totalMU/devMU.length} stroke={G} strokeDasharray="4 4" label={{value:`Avg ${(totalMU/devMU.length).toFixed(1)}`,fill:G,fontSize:10,position:"top"}}/>
                     <Bar dataKey="v" radius={[4,4,0,0]} label={({x,y,width,value})=><text x={x+width/2} y={y-5} fill={TX} textAnchor="middle" fontSize={10} fontWeight="600">{value}</text>}>
@@ -636,10 +636,10 @@ export default function App(){
               <CardHead title="Floor Area vs PSF — Value Positioning Matrix" sub="X=avg size · Y=avg PSF · Bubble=units · Color=sales performance" onDl={()=>dlPNG("ch-scat","value_positioning",PERF_LEGEND)} dlLabel="Download PNG"/>
               <div id="ch-scat" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={360}>
-                  <ScatterChart margin={{top:10,right:40,bottom:30,left:20}}>
+                  <ScatterChart margin={{top:10,right:40,bottom:56,left:70}}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#DDE4E2"/>
-                    <XAxis dataKey="x" type="number" name="Size" unit=" sf" domain={[200,3200]} tick={{fill:MU,fontSize:11}} label={{value:"Avg Unit Size (sq ft)",position:"insideBottom",offset:-15,fill:MU,fontSize:11}}/>
-                    <YAxis dataKey="y" type="number" name="PSF" domain={[700,2400]} tick={{fill:MU,fontSize:11}} tickFormatter={v=>`RM ${v}`} label={{value:"RM PSF",angle:-90,position:"insideLeft",fill:MU,fontSize:11}}/>
+                    <XAxis dataKey="x" type="number" name="Size" unit=" sf" domain={[200,3200]} tick={{fill:MU,fontSize:11}} label={{value:"Avg Unit Size (sq ft)",position:"bottom",offset:8,fill:MU,fontSize:11}}/>
+                    <YAxis dataKey="y" type="number" name="PSF" domain={[700,2400]} tick={{fill:MU,fontSize:10}} tickFormatter={v=>`RM ${v}`} label={{value:"RM PSF",angle:-90,position:"left",offset:14,fill:MU,fontSize:11}}/>
                     <ZAxis dataKey="z" range={[60,700]}/>
                     <Tooltip content={<ScatTip/>}/>
                     <ReferenceLine x={900} stroke={BD} strokeDasharray="4 4" label={{value:"← Compact | Spacious →",fill:MU,fontSize:9,position:"top"}}/>
