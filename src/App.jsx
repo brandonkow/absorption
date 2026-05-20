@@ -67,7 +67,7 @@ function Tip({name,dev,rows}){
     <div style={TP}>
       <p style={{color:"#FFFFFF",fontWeight:700,fontSize:13,margin:"0 0 3px"}}>{name}</p>
       {dev && <p style={{color:"#FFFFFF",fontSize:11,margin:"0 0 8px",opacity:0.8}}>{dev}</p>}
-      {rows.map((r,i)=>(<p key={i} style={{margin:"2px 0",color:"#FFFFFF",fontSize:12}}>{r.label}: <strong style={{color:r.c||"#FFFFFF"}}>{r.v}</strong></p>))}
+      {rows.map((r,i)=>(<p key={i} style={{margin:"2px 0",color:"#FFFFFF",fontSize:12}}>{r.label}: <strong style={{color:"#FFFFFF"}}>{r.v}</strong></p>))}
     </div>
   );
 }
@@ -111,10 +111,10 @@ function MapHover({p,c}){
       <text x={bx+10} y={by+15} fill="#FFFFFF" fontSize="10" fontWeight="bold" fontFamily="sans-serif">{p.name}</text>
       <text x={bx+10} y={by+28} fill="#FFFFFF" fillOpacity="0.75" fontSize="8.5" fontFamily="sans-serif">{p.dev} · {p.comp}</text>
       <text x={bx+10} y={by+42} fill="#FFFFFF" fontSize="8.5" fontFamily="sans-serif">{p.units} units · RM {p.psfMin}–{p.psfMax} psf</text>
-      <text x={bx+10} y={by+56} fill={rc(p.rate)} fontSize="9" fontFamily="sans-serif" fontWeight="bold">Sales Rate: {p.rate}%</text>
+      <text x={bx+10} y={by+56} fill="#FFFFFF" fontSize="9" fontFamily="sans-serif" fontWeight="bold">Sales Rate: {p.rate}%</text>
       <text x={bx+10} y={by+70} fill="#FFFFFF" fontSize="8.5" fontFamily="sans-serif">Monthly: {p.monthly}%/mo</text>
       <text x={bx+10} y={by+84} fill="#FFFFFF" fontSize="8.5" fontFamily="sans-serif">Sell-Out: {p.so<=0?"Sold Out":`~${p.so} months`}</text>
-      <text x={bx+10} y={by+97} fill={ZC[p.zone]||"#FFFFFF"} fontSize="8" fontFamily="sans-serif">{p.zone}</text>
+      <text x={bx+10} y={by+97} fill="#FFFFFF" fillOpacity="0.7" fontSize="8" fontFamily="sans-serif">{p.zone}</text>
     </g>
   );
 }
