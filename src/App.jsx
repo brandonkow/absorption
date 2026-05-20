@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ScatterChart, Scatter, ZAxis, ReferenceLine } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ScatterChart, Scatter, ZAxis, ReferenceLine, AreaChart, Area } from "recharts";
 import { useSheetData } from "./useSheetData";
 import SHEET_DATA from "./data.json";
 
@@ -106,6 +106,10 @@ function DevMUTip({active,payload}){
   const d=payload[0].payload;
   return (<Tip name={d.name} dev={null} rows={[{label:"Monthly Units",v:`${d.v} units/mo`},{label:"Projects",v:d.n}]} />);
 }
+function ByMonthTip({active,payload,label}){
+  if(!active||!payload||!payload.length) return null;
+  return (<Tip name={label} dev={null} rows={[{label:"Estimated Units",v:`${payload[0].value} units`}]} />);
+}
 function ScatTip({active,payload}){
   if(!active||!payload||!payload.length) return null;
   const d=payload[0].payload;
@@ -144,6 +148,18 @@ export default function App(){
     {p:"2025",   u:ANN.reduce((s,r)=>s+(r.y5||0),0)},
     {p:"1H 2026",u:ANN.reduce((s,r)=>s+(r.y6||0),0)},
   ],[ANN]);
+  const MO_NAMES=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const byMonth=useMemo(()=>{
+    const t4=ANN.reduce((s,r)=>s+(r.y4||0),0);
+    const t5=ANN.reduce((s,r)=>s+(r.y5||0),0);
+    const t6=ANN.reduce((s,r)=>s+(r.y6||0),0);
+    const v4=Math.round(t4/12),v5=Math.round(t5/12),v6=Math.round(t6/6);
+    return[
+      ...MO_NAMES.map((m,i)=>({period:`${m} '24`,v:v4,yr:2024,mo:i})),
+      ...MO_NAMES.map((m,i)=>({period:`${m} '25`,v:v5,yr:2025,mo:i})),
+      ...MO_NAMES.slice(0,6).map((m,i)=>({period:`${m} '26`,v:v6,yr:2026,mo:i})),
+    ];
+  },[ANN]);
 
   const en=useMemo(()=>ACTIVE.map(p=>{
     const mo=MONTHS[p.launch]||6,sold=Math.round(p.units*p.rate/100),monthly=parseFloat((p.rate/mo).toFixed(2)),moUnits=parseFloat((sold/mo).toFixed(1));
@@ -424,6 +440,33 @@ export default function App(){
                       <Bar dataKey="y6" name="1H 2026" stackId="a" fill={GR} fillOpacity={0.9} radius={[0,3,3,0]}/>
                     </BarChart>
                   </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+            <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:14}}>
+              <CardHead title="Monthly Units Absorbed — Market Total (Jan 2024 – Jun 2026)" sub="Estimated from annual totals · Step change reflects annual absorption rate shift" onDl={()=>dlPNG("ch-bymonth","monthly_trend")} dlLabel="Download PNG"/>
+              <div id="ch-bymonth" style={{padding:"18px 18px 8px"}}>
+                <ResponsiveContainer width="100%" height={240}>
+                  <AreaChart data={byMonth} margin={{top:10,right:16,bottom:32,left:8}}>
+                    <defs>
+                      <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={GR} stopOpacity={0.25}/>
+                        <stop offset="95%" stopColor={GR} stopOpacity={0.02}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#DDE4E2"/>
+                    <XAxis dataKey="period" tick={{fill:MU,fontSize:8.5}} interval={1} angle={-40} textAnchor="end" height={48}/>
+                    <YAxis tick={{fill:MU,fontSize:11}} label={{value:"Units / month",angle:-90,position:"insideLeft",fill:MU,fontSize:10}}/>
+                    <Tooltip content={<ByMonthTip/>}/>
+                    <ReferenceLine x="Jan '25" stroke={BD} strokeDasharray="3 3" label={{value:"2025 →",fill:MU,fontSize:9,position:"insideTopRight"}}/>
+                    <ReferenceLine x="Jan '26" stroke={BD} strokeDasharray="3 3" label={{value:"2026 →",fill:MU,fontSize:9,position:"insideTopRight"}}/>
+                    <Area type="stepAfter" dataKey="v" stroke={GR} strokeWidth={2.5} fill="url(#areaGrad)" dot={false} activeDot={{r:4,fill:GR}}/>
+                  </AreaChart>
+                </ResponsiveContainer>
+                <div style={{display:"flex",gap:24,fontSize:11,color:MU,padding:"4px 0 6px"}}>
+                  {[{l:"2024 avg",v:Math.round(byMonth[0]?.v),c:BL},{l:"2025 avg",v:Math.round(byMonth[12]?.v),c:G},{l:"1H 2026 avg",v:Math.round(byMonth[24]?.v),c:GR}].map((r,i)=>(
+                    <span key={i}><span style={{color:r.c,fontWeight:700}}>{r.v} units/mo</span> <span style={{color:MU}}>{r.l}</span></span>
+                  ))}
                 </div>
               </div>
             </div>
