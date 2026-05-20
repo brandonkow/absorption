@@ -481,12 +481,10 @@ export default function App(){
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:14}}>
               <CardHead title="Annual Breakdown" sub="— = N/A or pre-launch" onDl={()=>dlCSV(ANN.map(p=>({...p,tot:(p.y4||0)+(p.y5||0)+(p.y6||0)})),[{key:"name",label:"Project"},{key:"dev",label:"Developer"},{key:"y4",label:"2024"},{key:"y5",label:"2025"},{key:"y6",label:"1H 2026"},{key:"tot",label:"Total"}],"annual_breakdown")} dlLabel="Export CSV"/>
               <table style={{width:"100%",borderCollapse:"collapse"}}>
-                <thead style={{background:"#003F2D"}}><tr>{["#","Project","Developer","2024","2025","1H 2026","Total","Trend"].map(h=><th key={h} style={{padding:"9px 12px",color:"#B0D4CC",fontSize:10,textTransform:"uppercase",letterSpacing:1,textAlign:"left"}}>{h}</th>)}</tr></thead>
+                <thead style={{background:"#003F2D"}}><tr>{["#","Project","Developer","2024","2025","1H 2026","Total"].map(h=><th key={h} style={{padding:"9px 12px",color:"#B0D4CC",fontSize:10,textTransform:"uppercase",letterSpacing:1,textAlign:"left"}}>{h}</th>)}</tr></thead>
                 <tbody>
                   {ANN.map((p,i)=>{
                     const tot=(p.y4||0)+(p.y5||0)+(p.y6||0);
-                    const trend=p.y5>0&&p.y4>0?(p.y5>p.y4?"↑ Accel":"↓ Slow"):p.y5>0?"→ Launch":"→ New";
-                    const tc=trend.startsWith("↑")?GR:trend.startsWith("↓")?RE:BL;
                     return (<tr key={i} style={{borderBottom:"1px solid "+BD,background:i%2===0?"#FFFFFF":"#F6F8F7"}}>
                       <td style={td({color:MU,fontSize:11})}>{i+1}</td>
                       <td style={td({color:TX,fontSize:12})}>{p.name}</td>
@@ -495,7 +493,6 @@ export default function App(){
                       <td style={td({color:p.y5?G:MU,fontWeight:p.y5?700:400})}>{p.y5||"—"}</td>
                       <td style={td({color:p.y6?GR:MU,fontWeight:p.y6?700:400})}>{p.y6||"—"}</td>
                       <td style={td({color:TX,fontWeight:700})}>{tot||"—"}</td>
-                      <td style={td()}><Badge color={tc} text={trend}/></td>
                     </tr>);
                   })}
                   <tr style={{background:"#F6F8F7",borderTop:"1px solid "+BD}}>
