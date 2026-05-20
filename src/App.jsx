@@ -94,7 +94,12 @@ function AnnProjTip({active,payload}){
 function AbsTip({active,payload}){
   if(!active||!payload||!payload.length) return null;
   const d=payload[0].payload;
-  return (<Tip name={d.full} dev={d.dev} rows={[{label:"Monthly Abs",v:`${d.v}%`,c:GR}]} />);
+  return (<Tip name={d.full} dev={d.dev} rows={[{label:"Monthly Abs",v:`${d.v}%`}]} />);
+}
+function AbsUnitTip({active,payload}){
+  if(!active||!payload||!payload.length) return null;
+  const d=payload[0].payload;
+  return (<Tip name={d.full} dev={d.dev} rows={[{label:"Monthly Units",v:`${d.v} units/mo`}]} />);
 }
 function ScatTip({active,payload}){
   if(!active||!payload||!payload.length) return null;
@@ -136,8 +141,8 @@ export default function App(){
   ],[ANN]);
 
   const en=useMemo(()=>ACTIVE.map(p=>{
-    const mo=MONTHS[p.launch]||6,sold=Math.round(p.units*p.rate/100),monthly=parseFloat((p.rate/mo).toFixed(2));
-    return{...p,mo,sold,monthly,psfMid:Math.round((p.psfMin+p.psfMax)/2),sfMid:Math.round((p.sfMin+p.sfMax)/2),rem:p.units-sold,so:monthly>0?Math.ceil((100-p.rate)/monthly):999,zone:gz(p.name)};
+    const mo=MONTHS[p.launch]||6,sold=Math.round(p.units*p.rate/100),monthly=parseFloat((p.rate/mo).toFixed(2)),moUnits=parseFloat((sold/mo).toFixed(1));
+    return{...p,mo,sold,monthly,moUnits,psfMid:Math.round((p.psfMin+p.psfMax)/2),sfMid:Math.round((p.sfMin+p.sfMax)/2),rem:p.units-sold,so:monthly>0?Math.ceil((100-p.rate)/monthly):999,zone:gz(p.name)};
   }),[]);
 
   const avgR=(ACTIVE.reduce((s,p)=>s+p.rate,0)/ACTIVE.length).toFixed(1);
@@ -147,6 +152,8 @@ export default function App(){
 
   const bD=[...en].sort((a,b)=>b.rate-a.rate).map(p=>({name:p.name,full:p.name,dev:p.dev,v:p.rate,color:p.rate>=75?GR:p.rate>=40?BL:RE}));
   const aB=[...en].sort((a,b)=>b.monthly-a.monthly).map(p=>({name:p.name,full:p.name,dev:p.dev,v:p.monthly,color:p.monthly>=3?GR:p.monthly>=1?BL:RE}));
+  const aMU=[...en].sort((a,b)=>b.moUnits-a.moUnits).map(p=>({name:p.name,full:p.name,dev:p.dev,v:p.moUnits,color:p.monthly>=3?GR:p.monthly>=1?BL:RE}));
+  const avgMU=(en.reduce((s,p)=>s+p.moUnits,0)/en.length).toFixed(1);
   const sc2=en.map(p=>({x:p.sfMid,y:p.psfMid,z:p.units,name:p.name,dev:p.dev,rate:p.rate}));
   const SEGS=[
     {label:"Entry Luxury",range:"< RM 800K",color:BL,persona:"First-time luxury buyers, young professionals and investors seeking rental yield. Price-sensitive but aspirational.",proj:en.filter(p=>p.pMin<800000)},
@@ -457,10 +464,26 @@ export default function App(){
               </div>
               <LegendRow items={MONTHLY_LEGEND}/>
             </div>
+            <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:14}}>
+              <CardHead title="Monthly Unit Absorption — All Projects" sub="Avg units absorbed per month since launch · Color = absorption rate tier" onDl={()=>dlPNG("ch-munits","monthly_units",MONTHLY_LEGEND)} dlLabel="Download PNG"/>
+              <div id="ch-munits" style={{padding:"18px 18px 8px"}}>
+                <ResponsiveContainer width="100%" height={430}>
+                  <BarChart data={aMU} layout="vertical" margin={{left:8}}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#DDE4E2" horizontal={false}/>
+                    <XAxis type="number" tick={{fill:MU,fontSize:11}} label={{value:"Units / month",position:"insideBottom",offset:-2,fill:MU,fontSize:10}}/>
+                    <YAxis dataKey="name" type="category" tick={{fill:MU,fontSize:9}} width={190} interval={0}/>
+                    <Tooltip content={<AbsUnitTip/>}/>
+                    <ReferenceLine x={parseFloat(avgMU)} stroke={G} strokeDasharray="4 4" label={{value:`Avg ${avgMU}`,fill:G,fontSize:10,position:"top"}}/>
+                    <Bar dataKey="v" radius={[0,4,4,0]} label={({x,y,width,height,value})=><text x={x+width+4} y={y+height/2+4} fill={TX} fontSize={9}>{value}</text>}>{aMU.map((d,i)=><Cell key={i} fill={d.color}/>)}</Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+              <LegendRow items={MONTHLY_LEGEND}/>
+            </div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden"}}>
-              <CardHead title="Absorption Detail & Sell-Out Projection" onDl={()=>dlCSV([...en].sort((a,b)=>b.monthly-a.monthly).map(p=>({...p,sl:p.so<=0?"Sold Out":`~${p.so} mo.`})),[{key:"name",label:"Project"},{key:"dev",label:"Developer"},{key:"launch",label:"Launch"},{key:"units",label:"Units"},{key:"sold",label:"Sold"},{key:"rem",label:"Remaining"},{key:"monthly",label:"Monthly %"},{key:"sl",label:"Est. Sell-Out"}],"sellout")} dlLabel="Export CSV"/>
+              <CardHead title="Absorption Detail & Sell-Out Projection" onDl={()=>dlCSV([...en].sort((a,b)=>b.monthly-a.monthly).map(p=>({...p,sl:p.so<=0?"Sold Out":`~${p.so} mo.`})),[{key:"name",label:"Project"},{key:"dev",label:"Developer"},{key:"launch",label:"Launch"},{key:"units",label:"Units"},{key:"sold",label:"Sold"},{key:"rem",label:"Remaining"},{key:"monthly",label:"Monthly %"},{key:"moUnits",label:"Monthly Units"},{key:"sl",label:"Est. Sell-Out"}],"sellout")} dlLabel="Export CSV"/>
               <table style={{width:"100%",borderCollapse:"collapse"}}>
-                <thead style={{background:"#003F2D"}}><tr>{["Project","Developer","Launch","Units","Sold","Rem.","Monthly","Est. Sell-Out"].map(h=><th key={h} style={{padding:"9px 12px",color:"#B0D4CC",fontSize:10,textTransform:"uppercase",letterSpacing:1,textAlign:"left"}}>{h}</th>)}</tr></thead>
+                <thead style={{background:"#003F2D"}}><tr>{["Project","Developer","Launch","Units","Sold","Remaining","Monthly %","Monthly Units","Est. Sell-Out"].map(h=><th key={h} style={{padding:"9px 12px",color:"#B0D4CC",fontSize:10,textTransform:"uppercase",letterSpacing:1,textAlign:"left"}}>{h}</th>)}</tr></thead>
                 <tbody>{[...en].sort((a,b)=>b.monthly-a.monthly).map((p,i)=>{
                   const sl=p.monthly<=0?"N/A":p.so<=0?"Sold Out":`~${p.so} mo.`;
                   const sc3=p.so<=0?GR:p.so<=12?G:RE;
@@ -472,6 +495,7 @@ export default function App(){
                     <td style={td({color:TX})}>{p.sold}</td>
                     <td style={td({color:MU})}>{p.rem}</td>
                     <td style={td({color:p.monthly>=3?GR:p.monthly>=1?G:RE,fontWeight:700})}>{p.monthly}%</td>
+                    <td style={td({color:TX,fontWeight:600})}>{p.moUnits}</td>
                     <td style={td()}><Badge color={sc3} text={sl}/></td>
                   </tr>);
                 })}</tbody>
