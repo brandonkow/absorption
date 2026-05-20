@@ -101,6 +101,11 @@ function AbsUnitTip({active,payload}){
   const d=payload[0].payload;
   return (<Tip name={d.full} dev={d.dev} rows={[{label:"Monthly Units",v:`${d.v} units/mo`}]} />);
 }
+function DevMUTip({active,payload}){
+  if(!active||!payload||!payload.length) return null;
+  const d=payload[0].payload;
+  return (<Tip name={d.name} dev={null} rows={[{label:"Monthly Units",v:`${d.v} units/mo`},{label:"Projects",v:d.n}]} />);
+}
 function ScatTip({active,payload}){
   if(!active||!payload||!payload.length) return null;
   const d=payload[0].payload;
@@ -154,6 +159,8 @@ export default function App(){
   const aB=[...en].sort((a,b)=>b.monthly-a.monthly).map(p=>({name:p.name,full:p.name,dev:p.dev,v:p.monthly,color:p.monthly>=3?GR:p.monthly>=1?BL:RE}));
   const aMU=[...en].sort((a,b)=>b.moUnits-a.moUnits).map(p=>({name:p.name,full:p.name,dev:p.dev,v:p.moUnits,color:p.monthly>=3?GR:p.monthly>=1?BL:RE}));
   const avgMU=(en.reduce((s,p)=>s+p.moUnits,0)/en.length).toFixed(1);
+  const devMU=Object.entries(en.reduce((a,p)=>{if(!a[p.dev])a[p.dev]={n:0,mu:0};a[p.dev].n++;a[p.dev].mu+=p.moUnits;return a;},{})).map(([dev,d])=>({name:dev,v:+d.mu.toFixed(1),n:d.n})).sort((a,b)=>b.v-a.v);
+  const totalMU=+en.reduce((s,p)=>s+p.moUnits,0).toFixed(1);
   const sc2=en.map(p=>({x:p.sfMid,y:p.psfMid,z:p.units,name:p.name,dev:p.dev,rate:p.rate}));
   const SEGS=[
     {label:"Entry Luxury",range:"< RM 800K",color:BL,persona:"First-time luxury buyers, young professionals and investors seeking rental yield. Price-sensitive but aspirational.",proj:en.filter(p=>p.pMin<800000)},
@@ -479,6 +486,23 @@ export default function App(){
                 </ResponsiveContainer>
               </div>
               <LegendRow items={MONTHLY_LEGEND}/>
+            </div>
+            <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:14}}>
+              <CardHead title="Total Monthly Units Sold — By Developer" sub={`Combined market: ${totalMU} units/month across all developers`} onDl={()=>dlPNG("ch-devmu","dev_monthly_units")} dlLabel="Download PNG"/>
+              <div id="ch-devmu" style={{padding:"18px 18px 8px"}}>
+                <ResponsiveContainer width="100%" height={260}>
+                  <BarChart data={devMU} margin={{top:18,right:24,bottom:8,left:8}}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#DDE4E2" vertical={false}/>
+                    <XAxis dataKey="name" tick={{fill:MU,fontSize:10}} interval={0} angle={-20} textAnchor="end" height={48}/>
+                    <YAxis tick={{fill:MU,fontSize:11}} label={{value:"Units / month",angle:-90,position:"insideLeft",fill:MU,fontSize:10}}/>
+                    <Tooltip content={<DevMUTip/>}/>
+                    <ReferenceLine y={totalMU/devMU.length} stroke={G} strokeDasharray="4 4" label={{value:`Avg ${(totalMU/devMU.length).toFixed(1)}`,fill:G,fontSize:10,position:"top"}}/>
+                    <Bar dataKey="v" radius={[4,4,0,0]} label={({x,y,width,value})=><text x={x+width/2} y={y-5} fill={TX} textAnchor="middle" fontSize={10} fontWeight="600">{value}</text>}>
+                      {devMU.map((d,i)=><Cell key={i} fill={[GR,BL,G,RE,G2,"#778F9C","#E5B8D0","#A0C4B0"][i%8]}/>)}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden"}}>
               <CardHead title="Absorption Detail & Sell-Out Projection" onDl={()=>dlCSV([...en].sort((a,b)=>b.monthly-a.monthly).map(p=>({...p,sl:p.so<=0?"Sold Out":`~${p.so} mo.`})),[{key:"name",label:"Project"},{key:"dev",label:"Developer"},{key:"launch",label:"Launch"},{key:"units",label:"Units"},{key:"sold",label:"Sold"},{key:"rem",label:"Remaining"},{key:"monthly",label:"Monthly %"},{key:"moUnits",label:"Monthly Units"},{key:"sl",label:"Est. Sell-Out"}],"sellout")} dlLabel="Export CSV"/>
