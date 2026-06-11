@@ -16,7 +16,7 @@
 // ─────────────────────────────────────────────────────────────
 
 export const SHEETS = {
-  projects:  "https://docs.google.com/spreadsheets/d/e/2PACX-1vT-gtoI_ZbXogP4-FLtaDbrQ_skjXZVbYBeuiugwFAt3i9NMit8-jrUdtVtNtEhiWCECkfkne6UqjJN/pub?gid=701938332&single=true&output=csv",
-  annual:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vT-gtoI_ZbXogP4-FLtaDbrQ_skjXZVbYBeuiugwFAt3i9NMit8-jrUdtVtNtEhiWCECkfkne6UqjJN/pub?gid=178014944&single=true&output=csv",
-  completed: "https://docs.google.com/spreadsheets/d/e/2PACX-1vT-gtoI_ZbXogP4-FLtaDbrQ_skjXZVbYBeuiugwFAt3i9NMit8-jrUdtVtNtEhiWCECkfkne6UqjJN/pub?gid=842732858&single=true&output=csv",
+  projects:  "PASTE_YOUR_PROJECTS_URL_HERE",
+  annual:    "PASTE_YOUR_ANNUAL_URL_HERE",
+  completed: "PASTE_YOUR_COMPLETED_URL_HERE",
 };
