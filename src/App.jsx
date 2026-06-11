@@ -171,10 +171,11 @@ export default function App(){
   const en=useMemo(()=>ACTIVE.map(p=>{
     const mo=MONTHS[p.launch]||6,sold=Math.round(p.units*p.rate/100),monthly=parseFloat((p.rate/mo).toFixed(2)),moUnits=parseFloat((sold/mo).toFixed(1));
     return{...p,mo,sold,monthly,moUnits,psfMid:Math.round((p.psfMin+p.psfMax)/2),sfMid:Math.round((p.sfMin+p.sfMax)/2),rem:p.units-sold,so:monthly>0?Math.ceil((100-p.rate)/monthly):999,zone:gz(p.name)};
-  }),[]);
+  }),[ACTIVE]);
 
   const avgR=(ACTIVE.reduce((s,p)=>s+p.rate,0)/ACTIVE.length).toFixed(1);
   const avgM=(en.reduce((s,p)=>s+p.monthly,0)/en.length).toFixed(2);
+  const topPerf=en.reduce((a,p)=>p.monthly>a.monthly?p:a,en[0]||{name:"—",monthly:0});
   const sorted=[...en].sort((a,b)=>{const av=a[sc],bv=b[sc];if(typeof av==="string")return sd==="desc"?bv.localeCompare(av):av.localeCompare(bv);return sd==="desc"?bv-av:av-bv;});
   const ds=col=>{if(sc===col)setSd(d=>d==="desc"?"asc":"desc");else{setSc(col);setSd("desc");}};
 
@@ -233,7 +234,7 @@ export default function App(){
         <div>
           <div style={{fontSize:10,color:G,letterSpacing:3,textTransform:"uppercase",marginBottom:4,fontWeight:600}}>Penang High-Rise Residential Market</div>
           <div style={{fontSize:22,fontWeight:700,color:"#FFFFFF"}}>Market Absorption Study</div>
-          <div style={{fontSize:11,color:"#80BBAD",marginTop:3}}>18 Active Projects · 2 Completed Benchmarks · As of May 2026</div>
+          <div style={{fontSize:11,color:"#80BBAD",marginTop:3}}>{ACTIVE.length} Active Projects · {DONE.length} Completed Benchmarks · As of May 2026</div>
         </div>
         <div style={{textAlign:"right"}}>
           <div style={{fontSize:11,color:"#80BBAD",marginBottom:2}}>Prepared by</div>
@@ -259,7 +260,7 @@ export default function App(){
         {tab==="Overview" && (
           <div>
             <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:20}}>
-              {[{l:"Active Projects",v:18,s:"Penang market",c:G},{l:"Total Units",v:ACTIVE.reduce((s,p)=>s+p.units,0).toLocaleString(),s:"Active pipeline",c:BL},{l:"Avg Sales Rate",v:`${avgR}%`,s:"All projects",c:G2},{l:"Avg Monthly Abs.",v:`${avgM}%`,s:"Launch-adjusted",c:GR}].map((k,i)=>(
+              {[{l:"Active Projects",v:ACTIVE.length,s:"Penang market",c:G},{l:"Total Units",v:ACTIVE.reduce((s,p)=>s+p.units,0).toLocaleString(),s:"Active pipeline",c:BL},{l:"Avg Sales Rate",v:`${avgR}%`,s:"All projects",c:G2},{l:"Avg Monthly Abs.",v:`${avgM}%`,s:"Launch-adjusted",c:GR}].map((k,i)=>(
                 <div key={i} style={{background:CD,border:"1px solid "+BD,borderRadius:10,padding:"16px 18px",borderTop:"2px solid "+k.c}}>
                   <div style={{fontSize:10,color:MU,letterSpacing:2,textTransform:"uppercase",marginBottom:6}}>{k.l}</div>
                   <div style={{fontSize:24,fontWeight:700,color:k.c}}>{k.v}</div>
@@ -397,7 +398,7 @@ export default function App(){
         {tab==="Absorption Rate" && (
           <div>
             <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:16}}>
-              {[{l:"Market Avg Monthly",v:`${avgM}%`,s:"All 18 projects",c:G},{l:"Top Performer",v:"The Anton",s:"4.71%/month",c:GR},{l:"2025 Market Total",v:"1,884",s:"Units absorbed",c:BL},{l:"High Performers",v:`${en.filter(p=>p.rate>=75).length}`,s:"Projects ≥75% take-up",c:G2}].map((k,i)=>(
+              {[{l:"Market Avg Monthly",v:`${avgM}%`,s:`All ${en.length} projects`,c:G},{l:"Top Performer",v:topPerf.name,s:`${topPerf.monthly}%/month`,c:GR},{l:"2025 Market Total",v:ATOT[1].u.toLocaleString(),s:"Units absorbed",c:BL},{l:"High Performers",v:`${en.filter(p=>p.rate>=75).length}`,s:"Projects ≥75% take-up",c:G2}].map((k,i)=>(
                 <div key={i} style={{background:CD,border:"1px solid "+BD,borderRadius:10,padding:"16px 18px",borderTop:"2px solid "+k.c}}>
                   <div style={{fontSize:10,color:MU,letterSpacing:2,textTransform:"uppercase",marginBottom:6}}>{k.l}</div>
                   <div style={{fontSize:22,fontWeight:700,color:k.c}}>{k.v}</div>
@@ -419,7 +420,7 @@ export default function App(){
                     </BarChart>
                   </ResponsiveContainer>
                   <div style={{marginTop:12,display:"flex",flexDirection:"column",gap:6}}>
-                    {[{l:"2024",v:386,c:BL},{l:"2025",v:1884,c:G},{l:"1H 2026",v:1406,c:GR}].map((r,i)=>(
+                    {ATOT.map((t,i)=>({l:t.p,v:t.u,c:[BL,G,GR][i]})).map((r,i)=>(
                       <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",background:"#F6F8F7",borderRadius:6,padding:"6px 10px",border:"1px solid "+BD}}>
                         <span style={{fontSize:11,color:MU}}>{r.l}</span><span style={{fontSize:13,fontWeight:700,color:r.c}}>{r.v.toLocaleString()}</span>
                       </div>
@@ -497,8 +498,8 @@ export default function App(){
                   })}
                   <tr style={{background:"#F6F8F7",borderTop:"1px solid "+BD}}>
                     <td colSpan={3} style={td({color:GR,fontWeight:700,fontSize:12})}>Market Total</td>
-                    <td style={td({color:BL,fontWeight:700})}>386</td><td style={td({color:G,fontWeight:700})}>1,884</td>
-                    <td style={td({color:GR,fontWeight:700})}>1,406</td><td style={td({color:TX,fontWeight:700})}>3,676</td><td/>
+                    <td style={td({color:BL,fontWeight:700})}>{ATOT[0].u.toLocaleString()}</td><td style={td({color:G,fontWeight:700})}>{ATOT[1].u.toLocaleString()}</td>
+                    <td style={td({color:GR,fontWeight:700})}>{ATOT[2].u.toLocaleString()}</td><td style={td({color:TX,fontWeight:700})}>{(ATOT[0].u+ATOT[1].u+ATOT[2].u).toLocaleString()}</td>
                   </tr>
                 </tbody>
               </table>
@@ -735,10 +736,10 @@ export default function App(){
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden"}}>
               <div style={{padding:"14px 18px",borderBottom:"1px solid "+BD,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                 <div style={{fontSize:13,fontWeight:700,color:GR}}>🎯 Top Performer Strategy Notes</div>
-                <DBtn onClick={()=>dlCSV([{name:"Noordinz Suites",seg:"Entry Luxury",note:"99.83% sold. Consider higher ASP on future phases."},{name:"The Lighthauz",seg:"Mid Luxury",note:"469 units absorbed 2025–1H26. Differentiate via design."},{name:"Keeperz Suites",seg:"Entry–Mid Luxury",note:"Launched at RM 1,723 max PSF. Lead with investor-yield narrative."}],[{key:"name",label:"Project"},{key:"seg",label:"Segment"},{key:"note",label:"Strategy Note"}],"performer_strategy")} label="Export CSV"/>
+                <DBtn onClick={()=>dlCSV([{name:"Noordinz Suites",seg:"Entry Luxury",note:"99.83% sold. Consider higher ASP on future phases."},{name:"The Lighthauz",seg:"Mid Luxury",note:"487 units absorbed 2025–1H26. Differentiate via design."},{name:"Keeperz Suites",seg:"Entry–Mid Luxury",note:"Launched at RM 1,723 max PSF. Lead with investor-yield narrative."}],[{key:"name",label:"Project"},{key:"seg",label:"Segment"},{key:"note",label:"Strategy Note"}],"performer_strategy")} label="Export CSV"/>
               </div>
               <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,padding:16}}>
-                {[{name:"Noordinz Suites",seg:"Entry Luxury",note:"99.83% sold — validates strong sub-RM 1M demand. Consider higher ASP on future phases.",c:GR},{name:"The Lighthauz",seg:"Mid Luxury",note:"469 units absorbed 2025–1H26. Differentiate via design and lifestyle programming.",c:G},{name:"Keeperz Suites",seg:"Entry–Mid Luxury",note:"Launched at highest PSF in segment (RM 1,723 max). Lead with investor-yield narrative.",c:BL}].map((item,i)=>(
+                {[{name:"Noordinz Suites",seg:"Entry Luxury",note:"99.83% sold — validates strong sub-RM 1M demand. Consider higher ASP on future phases.",c:GR},{name:"The Lighthauz",seg:"Mid Luxury",note:"487 units absorbed 2025–1H26. Differentiate via design and lifestyle programming.",c:G},{name:"Keeperz Suites",seg:"Entry–Mid Luxury",note:"Launched at highest PSF in segment (RM 1,723 max). Lead with investor-yield narrative.",c:BL}].map((item,i)=>(
                   <div key={i} style={{background:"#FFFFFF",borderRadius:8,padding:14,border:"1px solid "+BD}}>
                     <div style={{fontSize:12,fontWeight:700,color:GR,marginBottom:2}}>{item.name}</div>
                     <div style={{fontSize:10,color:item.c,marginBottom:8,fontWeight:600}}>{item.seg}</div>

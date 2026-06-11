@@ -28,7 +28,7 @@
       "pMax": 2894760,
       "launch": 2023,
       "comp": "Q4 2027",
-      "rate": 56.95
+      "rate": 57.52
     },
     {
       "no": 3,
@@ -43,7 +43,7 @@
       "pMax": 3820000,
       "launch": 2024,
       "comp": "Q1 2029",
-      "rate": 73.18
+      "rate": 75.48
     },
     {
       "no": 4,
@@ -58,7 +58,7 @@
       "pMax": 1772000,
       "launch": 2025,
       "comp": "Q3 2029",
-      "rate": 59.69
+      "rate": 62.21
     },
     {
       "no": 5,
@@ -73,12 +73,12 @@
       "pMax": 3501000,
       "launch": 2025,
       "comp": "Q4 2029",
-      "rate": 76.5
+      "rate": 77.91
     },
     {
       "no": 6,
-      "dev": "Unknown",
-      "name": "G’Vinton",
+      "dev": "GSD Land",
+      "name": "G'Vinton",
       "units": 508,
       "sfMin": 387,
       "sfMax": 474,
@@ -88,7 +88,7 @@
       "pMax": 682500,
       "launch": 2024,
       "comp": "Q3 2027",
-      "rate": 0.59
+      "rate": 4.72
     },
     {
       "no": 7,
@@ -103,7 +103,7 @@
       "pMax": 1614000,
       "launch": 2024,
       "comp": "Q2 2028",
-      "rate": 78.69
+      "rate": 80.87
     },
     {
       "no": 8,
@@ -133,7 +133,7 @@
       "pMax": 1081000,
       "launch": 2023,
       "comp": "Q4 2028",
-      "rate": 78.23
+      "rate": 78.74
     },
     {
       "no": 10,
@@ -163,7 +163,7 @@
       "pMax": 1360000,
       "launch": 2023,
       "comp": "Q2 2026",
-      "rate": 65.22
+      "rate": 67.7
     },
     {
       "no": 12,
@@ -193,7 +193,7 @@
       "pMax": 1173700,
       "launch": 2025,
       "comp": "Q4 2028",
-      "rate": 69.9
+      "rate": 72.58
     },
     {
       "no": 14,
@@ -208,7 +208,7 @@
       "pMax": 1671000,
       "launch": 2025,
       "comp": "Q4 2028",
-      "rate": 20.09
+      "rate": 21.85
     },
     {
       "no": 15,
@@ -232,7 +232,7 @@
       "units": 493,
       "sfMin": 484,
       "sfMax": 581,
-      "psfMin": 1433,
+      "psfMin": 1420,
       "psfMax": 1723,
       "pMin": 832600,
       "pMax": 1001000,
@@ -253,7 +253,7 @@
       "pMax": 1224000,
       "launch": 2024,
       "comp": "Q1 2027",
-      "rate": 78.78
+      "rate": 80.26
     },
     {
       "no": 18,
@@ -268,7 +268,7 @@
       "pMax": 848800,
       "launch": 2024,
       "comp": "Q4 2027",
-      "rate": 49.39
+      "rate": 49.69
     }
   ],
   "ann": [
@@ -276,56 +276,56 @@
       "sh": "Queens Q3",
       "name": "Queens Residences Q3",
       "dev": "Ideal",
-      "y4": 76,
-      "y5": 151,
+      "y4": 77,
+      "y5": 153,
       "y6": 76
     },
     {
       "sh": "The Lume",
       "name": "The Lume",
       "dev": "E&O",
-      "y4": 48,
-      "y5": 95,
-      "y6": 48
+      "y4": 49,
+      "y5": 99,
+      "y6": 49
     },
     {
       "sh": "Maris",
       "name": "Maris",
       "dev": "E&O",
       "y4": 0,
-      "y5": 205,
-      "y6": 103
+      "y5": 214,
+      "y6": 107
     },
     {
       "sh": "Westin",
       "name": "Westin Residences",
       "dev": "BSG Property",
       "y4": 0,
-      "y5": 254,
-      "y6": 127
+      "y5": 259,
+      "y6": 129
     },
     {
-      "sh": "G’Vinton",
-      "name": "G’Vinton",
-      "dev": "Unknown",
+      "sh": "G'Vinton",
+      "name": "G'Vinton",
+      "dev": "GSD Land",
       "y4": 0,
-      "y5": 2,
-      "y6": 1
+      "y5": 16,
+      "y6": 8
     },
     {
       "sh": "Lumina",
       "name": "Lumina Residence",
       "dev": "BSG Property",
       "y4": 0,
-      "y5": 312,
-      "y6": 157
+      "y5": 321,
+      "y6": 161
     },
     {
       "sh": "The Crown",
       "name": "The Crown",
       "dev": "Chin Hin",
-      "y4": 115,
-      "y5": 230,
+      "y4": 116,
+      "y5": 232,
       "y6": 115
     },
     {
@@ -342,7 +342,7 @@
       "dev": "Airmas",
       "y4": 0,
       "y5": 0,
-      "y6": 105
+      "y6": 109
     },
     {
       "sh": "Lightwater",
@@ -357,8 +357,8 @@
       "name": "The Lighthauz",
       "dev": "Exsim",
       "y4": 0,
-      "y5": 234,
-      "y6": 235
+      "y5": 243,
+      "y6": 244
     },
     {
       "sh": "Avea",
@@ -366,7 +366,7 @@
       "dev": "E&O",
       "y4": 0,
       "y5": 0,
-      "y6": 217
+      "y6": 236
     },
     {
       "sh": "Setia SV2",
@@ -388,16 +388,16 @@
       "sh": "Avion",
       "name": "Avion",
       "dev": "Rackson",
-      "y4": 120,
-      "y5": 239,
-      "y6": 120
+      "y4": 122,
+      "y5": 244,
+      "y6": 122
     },
     {
       "sh": "Bayan Suite",
       "name": "Bayan Suite",
       "dev": "Seal Inc.",
       "y4": 0,
-      "y5": 107,
+      "y5": 108,
       "y6": 54
     }
   ],

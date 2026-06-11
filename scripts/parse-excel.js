@@ -8,13 +8,32 @@
  *  2. Run:  npm run update-data
  *  3. git add public/Master_File.xlsx src/data.json && git push
  *
+ * ── Expected column layout (v2, sheet "Master") ───────────────────
+ *  0  No
+ *  1  Project Name
+ *  2  Total Units
+ *  3  Typical Floor Area (sq. ft.)
+ *  4  Developer's Selling Price (RM)
+ *  5  Developer's Selling Price (RM psf)
+ *  6  Transacted Price (RM)          ← used as price range
+ *  7  Transacted Price (RM psf)      ← used as PSF range
+ *  8  Launched year / Estimated Completion
+ *  9  Absorption units 2023
+ *  10 Absorption units 2024
+ *  11 Absorption units 2025
+ *  12 Absorption units 1H 2026
+ *
+ *  Sales rate is computed as cumulative absorption ÷ total units.
+ *  Projects with no absorption data are included only if they have a
+ *  RATE_OVERRIDE entry; otherwise they are skipped (e.g. pre-launch).
+ *
  * ── Developer names ───────────────────────────────────────────────
  *  The Excel has no Developer column.  Add new projects to DEV_MAP.
  * ─────────────────────────────────────────────────────────────────
  */
 
 import XLSX from 'xlsx';
-import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { writeFileSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -70,6 +89,22 @@ const NAME_NORM = {
   "Westin Residences Penang": "Westin Residences",
 };
 
+// ── Sales-rate overrides ──────────────────────────────────────────
+// For projects whose take-up is known from research but which have no
+// per-year absorption breakdown in the Excel. Values carried over from
+// the original Master_File (which had an explicit Sales Rate column).
+const RATE_OVERRIDE = {
+  "Noordinz Suites": 99.83,
+  "The Anton":       94.12,
+};
+
+// ── Launch-year fixes ─────────────────────────────────────────────
+// For rows where the Excel omits the launch year (e.g. "Q2 2026" is
+// completion only). Values carried over from the original Master_File.
+const LAUNCH_FIX = {
+  "Alton Skyvillas": 2023,
+};
+
 // ── Helpers ───────────────────────────────────────────────────────
 function cleanNum(v) {
   if (typeof v === 'number') return v;
@@ -93,11 +128,16 @@ function parseRange(raw) {
 }
 
 function parseLaunchComp(raw) {
-  const parts = String(raw || '').split('/');
-  return {
-    launch: parseInt(parts[0].trim()) || 0,
-    comp:   parts.slice(1).join('/').trim(),
-  };
+  const s = String(raw || '').trim();
+  if (!s) return { launch: 0, comp: '' };
+  const parts = s.split('/');
+  if (parts.length >= 2) {
+    // Launch part may carry a quarter prefix, e.g. "Q3 2023" — take the year.
+    const ym = parts[0].match(/(\d{4})/);
+    return { launch: ym ? parseInt(ym[1]) : 0, comp: parts.slice(1).join('/').trim() };
+  }
+  // No slash → the cell holds completion only; launch comes from LAUNCH_FIX.
+  return { launch: 0, comp: s };
 }
 
 function sh(name) {
@@ -126,20 +166,21 @@ for (const r of rows) {
   if (label === 'No' || typeof r[0] !== 'number') continue;
   if (!String(r[1]).trim()) continue;
 
+  // Normalise curly apostrophes so DEV_MAP / map-coordinate lookups match.
+  const rawName = String(r[1]).trim().replace(/[’‘]/g, "'");
+
   const entry = {
     no:        r[0],
-    name:      NAME_NORM[String(r[1]).trim()] ?? String(r[1]).trim(),
+    name:      NAME_NORM[rawName] ?? rawName,
     units:     parseInt(r[2]) || 0,
     sf:        r[3],
-    price:     r[4],
-    psf:       r[5],
-    lc:        r[6],
-    abs2023:   cleanNum(r[7]),
-    abs2024:   cleanNum(r[8]),
-    abs2025:   cleanNum(r[9]),
-    abs1h2026: cleanNum(r[10]),
-    rateRaw:   r[11],
-    remark:    String(r[12] || '').trim(),
+    price:     r[6],   // Transacted Price (RM)
+    psf:       r[7],   // Transacted Price (RM psf)
+    lc:        r[8],
+    abs2023:   cleanNum(r[9]),
+    abs2024:   cleanNum(r[10]),
+    abs2025:   cleanNum(r[11]),
+    abs1h2026: cleanNum(r[12]),
   };
 
   if (section === 'highrise') highriseRows.push(entry);
@@ -151,14 +192,18 @@ const active = [];
 const ann    = [];
 
 for (const r of highriseRows) {
-  // Skip rows that only have a booking/estimated rate (not a confirmed numeric %)
-  if (typeof r.rateRaw !== 'number') continue;
+  const cumAbs = r.abs2023 + r.abs2024 + r.abs2025 + r.abs1h2026;
+
+  // Skip rows with no absorption data and no known rate (e.g. pre-launch).
+  if (!cumAbs && !(r.name in RATE_OVERRIDE)) continue;
 
   const [sfMin,  sfMax]  = parseRange(r.sf);
   const [pMin,   pMax]   = parseRange(r.price);
   const [psfMin, psfMax] = parseRange(r.psf);
-  const { launch, comp } = parseLaunchComp(r.lc);
+  let { launch, comp }   = parseLaunchComp(r.lc);
+  if (!launch) launch    = LAUNCH_FIX[r.name] ?? 0;
   const dev              = DEV_MAP[r.name] ?? 'Unknown';
+  const rate             = RATE_OVERRIDE[r.name] ?? +((cumAbs / r.units) * 100).toFixed(2);
 
   active.push({
     no:    seq++,
@@ -169,7 +214,7 @@ for (const r of highriseRows) {
     psfMin: Math.round(psfMin), psfMax: Math.round(psfMax),
     pMin:   Math.round(pMin),   pMax:   Math.round(pMax),
     launch, comp,
-    rate: r.rateRaw,
+    rate,
   });
 
   // Only include in annual chart if at least one year has absorption data
