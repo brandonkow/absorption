@@ -193,26 +193,31 @@ export default function App(){
     {label:"Ultra Luxury",range:"RM 3M+",color:"#E5B8D0",persona:"Ultra-HNWIs and trophy property collectors. Cash-heavy transactions driven by scarcity and prestige.",proj:en.filter(p=>p.pMin>=3000000)},
   ];
 
-  const dlPNG=(id,fn,legend=[])=>{
+  const dlPNG=(id,fn,legend=[],title="")=>{
     const el=document.getElementById(id);if(!el)return;
     const svg=el.querySelector("svg");if(!svg)return;
     const w=svg.clientWidth||800,h=svg.clientHeight||400;
+    const th=title?38:0;
     const lh=legend.length?34:0;
     const str=new XMLSerializer().serializeToString(svg);
     const blob=new Blob([str],{type:"image/svg+xml;charset=utf-8"});
     const url=URL.createObjectURL(blob);
     const img=new Image();
     img.onload=()=>{
-      const cv=document.createElement("canvas");cv.width=w*2;cv.height=(h+lh)*2;
+      const cv=document.createElement("canvas");cv.width=w*2;cv.height=(th+h+lh)*2;
       const ctx=cv.getContext("2d");ctx.scale(2,2);
-      ctx.fillStyle="#FFFFFF";ctx.fillRect(0,0,w,h+lh);
-      ctx.drawImage(img,0,0,w,h);
+      ctx.fillStyle="#FFFFFF";ctx.fillRect(0,0,w,th+h+lh);
+      if(title){
+        ctx.fillStyle="#003F2D";ctx.font="700 15px 'Segoe UI',sans-serif";ctx.textAlign="center";
+        ctx.fillText(title,w/2,25);ctx.textAlign="left";
+      }
+      ctx.drawImage(img,0,th,w,h);
       if(legend.length){
         const iw=Math.min(130,w/legend.length),totalW=legend.length*iw,lx=(w-totalW)/2;
         legend.forEach((it,i)=>{
-          ctx.fillStyle=it.c;ctx.fillRect(lx+i*iw,h+11,11,11);
+          ctx.fillStyle=it.c;ctx.fillRect(lx+i*iw,th+h+11,11,11);
           ctx.fillStyle="#6A7E7A";ctx.font="11px 'Segoe UI',sans-serif";
-          ctx.fillText(it.l,lx+i*iw+15,h+21);
+          ctx.fillText(it.l,lx+i*iw+15,th+h+21);
         });
       }
       cv.toBlob(b=>{const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=fn+".png";a.click();},"image/png");
@@ -320,7 +325,7 @@ export default function App(){
         {tab==="Sales Performance" && (
           <div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:16}}>
-              <CardHead title="Sales Take-Up Rate by Project (%)" sub="Dark Green ≥75% · Sage 40–74% · Red <40%" onDl={()=>dlPNG("ch-sales","sales_rate",PERF_LEGEND)} dlLabel="Download PNG"/>
+              <CardHead title="Sales Take-Up Rate by Project (%)" sub="Dark Green ≥75% · Sage 40–74% · Red <40%" onDl={()=>dlPNG("ch-sales","sales_rate",PERF_LEGEND,"Sales Take-Up Rate by Project (%)")} dlLabel="Download PNG"/>
               <div id="ch-sales" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={430}>
                   <BarChart data={bD} layout="vertical" margin={{top:10,right:52,bottom:10,left:8}}>
@@ -357,7 +362,7 @@ export default function App(){
         {tab==="Pricing" && (
           <div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:16}}>
-              <CardHead title="PSF Price Range by Project (RM)" sub="Min–Max range · Color indicates sales performance" onDl={()=>dlPNG("ch-psf","psf_range",PERF_LEGEND)} dlLabel="Download PNG"/>
+              <CardHead title="PSF Price Range by Project (RM)" sub="Min–Max range · Color indicates sales performance" onDl={()=>dlPNG("ch-psf","psf_range",PERF_LEGEND,"PSF Price Range by Project (RM)")} dlLabel="Download PNG"/>
               <div id="ch-psf" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={430}>
                   <BarChart data={[...en].sort((a,b)=>a.psfMid-b.psfMid).map(p=>({name:p.name,full:p.name,dev:p.dev,base:p.psfMin,range:p.psfMax-p.psfMin,mid:p.psfMid,lo:p.psfMin,hi:p.psfMax,rate:p.rate}))} layout="vertical" margin={{top:10,right:80,bottom:10,left:8}}>
@@ -408,7 +413,7 @@ export default function App(){
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 2fr",gap:14,marginBottom:14}}>
               <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden"}}>
-                <CardHead title="Annual Market Total" onDl={()=>dlPNG("ch-atot","annual_total",ANN_LEGEND)} dlLabel="PNG"/>
+                <CardHead title="Annual Market Total" onDl={()=>dlPNG("ch-atot","annual_total",ANN_LEGEND,"Annual Market Total")} dlLabel="PNG"/>
                 <div id="ch-atot" style={{padding:"14px 18px"}}>
                   <ResponsiveContainer width="100%" height={170}>
                     <BarChart data={ATOT} margin={{top:26,right:20,bottom:5,left:10}}>
@@ -430,7 +435,7 @@ export default function App(){
                 <LegendRow items={ANN_LEGEND}/>
               </div>
               <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden"}}>
-                <CardHead title="Annual Units Absorbed — Per Project" onDl={()=>dlPNG("ch-aproj","annual_per_project",ANN_LEGEND)} dlLabel="Download PNG"/>
+                <CardHead title="Annual Units Absorbed — Per Project" onDl={()=>dlPNG("ch-aproj","annual_per_project",ANN_LEGEND,"Annual Units Absorbed — Per Project")} dlLabel="Download PNG"/>
                 <div id="ch-aproj" style={{padding:"14px 18px"}}>
                   <div style={{display:"flex",gap:16,fontSize:11,color:MU,marginBottom:12}}>
                     {[{c:BL,l:"2024"},{c:G,l:"2025"},{c:GR,l:"1H 2026"}].map((it,i)=>(
@@ -452,7 +457,7 @@ export default function App(){
               </div>
             </div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:14}}>
-              <CardHead title="Monthly Units Absorbed — Market Total (Jan 2024 – Jun 2026)" sub="Estimated from annual totals · Step change reflects annual absorption rate shift" onDl={()=>dlPNG("ch-bymonth","monthly_trend",[{c:BL,l:`2024 avg: ${byMonth[0]?.v} units/mo`},{c:G,l:`2025 avg: ${byMonth[12]?.v} units/mo`},{c:GR,l:`1H '26 avg: ${byMonth[24]?.v} units/mo`}])} dlLabel="Download PNG"/>
+              <CardHead title="Monthly Units Absorbed — Market Total (Jan 2024 – Jun 2026)" sub="Estimated from annual totals · Step change reflects annual absorption rate shift" onDl={()=>dlPNG("ch-bymonth","monthly_trend",[{c:BL,l:`2024 avg: ${byMonth[0]?.v} units/mo`},{c:G,l:`2025 avg: ${byMonth[12]?.v} units/mo`},{c:GR,l:`1H '26 avg: ${byMonth[24]?.v} units/mo`}],"Monthly Units Absorbed — Market Total (Jan 2024 – Jun 2026)")} dlLabel="Download PNG"/>
               <div id="ch-bymonth" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={260}>
                   <AreaChart data={byMonth} margin={{top:10,right:20,bottom:62,left:14}}>
@@ -505,7 +510,7 @@ export default function App(){
               </table>
             </div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:14}}>
-              <CardHead title="Monthly Absorption Rate — All Projects" sub="Sales Rate ÷ Months since launch" onDl={()=>dlPNG("ch-monthly","monthly_abs",MONTHLY_LEGEND)} dlLabel="Download PNG"/>
+              <CardHead title="Monthly Absorption Rate — All Projects" sub="Sales Rate ÷ Months since launch" onDl={()=>dlPNG("ch-monthly","monthly_abs",MONTHLY_LEGEND,"Monthly Absorption Rate — All Projects")} dlLabel="Download PNG"/>
               <div id="ch-monthly" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={430}>
                   <BarChart data={aB} layout="vertical" margin={{top:10,right:55,bottom:10,left:8}}>
@@ -522,7 +527,7 @@ export default function App(){
               <Disclaimer/>
             </div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:14}}>
-              <CardHead title="Monthly Unit Absorption — All Projects" sub="Avg units absorbed per month since launch · Color = absorption rate tier" onDl={()=>dlPNG("ch-munits","monthly_units",MONTHLY_LEGEND)} dlLabel="Download PNG"/>
+              <CardHead title="Monthly Unit Absorption — All Projects" sub="Avg units absorbed per month since launch · Color = absorption rate tier" onDl={()=>dlPNG("ch-munits","monthly_units",MONTHLY_LEGEND,"Monthly Unit Absorption — All Projects")} dlLabel="Download PNG"/>
               <div id="ch-munits" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={430}>
                   <BarChart data={aMU} layout="vertical" margin={{top:10,right:62,bottom:10,left:8}}>
@@ -539,7 +544,7 @@ export default function App(){
               <Disclaimer/>
             </div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:14}}>
-              <CardHead title="Total Monthly Units Sold — By Developer" sub={`Combined market: ${totalMU} units/month across all developers`} onDl={()=>dlPNG("ch-devmu","dev_monthly_units",[{c:G,l:`Market total: ${totalMU} u/mo`},{c:GR,l:`Avg per developer: ${(totalMU/devMU.length).toFixed(1)} u/mo`}])} dlLabel="Download PNG"/>
+              <CardHead title="Total Monthly Units Sold — By Developer" sub={`Combined market: ${totalMU} units/month across all developers`} onDl={()=>dlPNG("ch-devmu","dev_monthly_units",[{c:G,l:`Market total: ${totalMU} u/mo`},{c:GR,l:`Avg per developer: ${(totalMU/devMU.length).toFixed(1)} u/mo`}],"Total Monthly Units Sold — By Developer")} dlLabel="Download PNG"/>
               <div id="ch-devmu" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={290}>
                   <BarChart data={devMU} margin={{top:20,right:24,bottom:70,left:50}}>
@@ -585,7 +590,7 @@ export default function App(){
         {tab==="Location Map" && (
           <div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:16}}>
-              <CardHead title="Project Location Map — Penang Island" sub="Hover over markers · Color = sales performance" onDl={()=>dlPNG("ch-map","penang_map")} dlLabel="Download PNG"/>
+              <CardHead title="Project Location Map — Penang Island" sub="Hover over markers · Color = sales performance" onDl={()=>dlPNG("ch-map","penang_map",[],"Project Location Map — Penang Island")} dlLabel="Download PNG"/>
               <div id="ch-map" style={{padding:"0 18px 18px"}}>
                 <svg viewBox="0 0 580 400" style={{width:"100%",height:"auto",display:"block",borderRadius:8}}>
                   <rect width="580" height="400" fill="#D6E8E4"/>
@@ -643,7 +648,7 @@ export default function App(){
         {tab==="Value Positioning" && (
           <div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:16}}>
-              <CardHead title="Floor Area vs PSF — Value Positioning Matrix" sub="X=avg size · Y=avg PSF · Bubble=units · Color=sales performance" onDl={()=>dlPNG("ch-scat","value_positioning",PERF_LEGEND)} dlLabel="Download PNG"/>
+              <CardHead title="Floor Area vs PSF — Value Positioning Matrix" sub="X=avg size · Y=avg PSF · Bubble=units · Color=sales performance" onDl={()=>dlPNG("ch-scat","value_positioning",PERF_LEGEND,"Floor Area vs PSF — Value Positioning Matrix")} dlLabel="Download PNG"/>
               <div id="ch-scat" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={360}>
                   <ScatterChart margin={{top:10,right:40,bottom:56,left:70}}>
