@@ -193,20 +193,21 @@ export default function App(){
     {label:"Ultra Luxury",range:"RM 3M+",color:"#E5B8D0",persona:"Ultra-HNWIs and trophy property collectors. Cash-heavy transactions driven by scarcity and prestige.",proj:en.filter(p=>p.pMin>=3000000)},
   ];
 
-  const dlPNG=(id,fn,legend=[],title="")=>{
+  const dlPNG=(id,fn,legend=[],title="",disclaimer="")=>{
     const el=document.getElementById(id);if(!el)return;
     const svg=el.querySelector("svg");if(!svg)return;
     const w=svg.clientWidth||800,h=svg.clientHeight||400;
     const th=title?38:0;
     const lh=legend.length?34:0;
+    const dh=disclaimer?28:0;
     const str=new XMLSerializer().serializeToString(svg);
     const blob=new Blob([str],{type:"image/svg+xml;charset=utf-8"});
     const url=URL.createObjectURL(blob);
     const img=new Image();
     img.onload=()=>{
-      const cv=document.createElement("canvas");cv.width=w*2;cv.height=(th+h+lh)*2;
+      const cv=document.createElement("canvas");cv.width=w*2;cv.height=(th+h+lh+dh)*2;
       const ctx=cv.getContext("2d");ctx.scale(2,2);
-      ctx.fillStyle="#FFFFFF";ctx.fillRect(0,0,w,th+h+lh);
+      ctx.fillStyle="#FFFFFF";ctx.fillRect(0,0,w,th+h+lh+dh);
       if(title){
         ctx.fillStyle="#003F2D";ctx.font="700 15px 'Segoe UI',sans-serif";ctx.textAlign="center";
         ctx.fillText(title,w/2,25);ctx.textAlign="left";
@@ -219,6 +220,12 @@ export default function App(){
           ctx.fillStyle="#6A7E7A";ctx.font="11px 'Segoe UI',sans-serif";
           ctx.fillText(it.l,lx+i*iw+15,th+h+21);
         });
+      }
+      if(disclaimer){
+        const dy=th+h+lh+8;
+        ctx.fillStyle="#EEF2F1";ctx.fillRect(0,dy-4,w,dh);
+        ctx.fillStyle="#6A7E7A";ctx.font="italic 9px 'Segoe UI',sans-serif";
+        ctx.fillText(disclaimer,12,dy+10);
       }
       cv.toBlob(b=>{const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=fn+".png";a.click();},"image/png");
       URL.revokeObjectURL(url);
@@ -457,7 +464,7 @@ export default function App(){
               </div>
             </div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:14}}>
-              <CardHead title="Monthly Units Absorbed — Market Total (Jan 2024 – Jun 2026)" sub="Estimated from annual totals · Step change reflects annual absorption rate shift" onDl={()=>dlPNG("ch-bymonth","monthly_trend",[{c:BL,l:`2024 avg: ${byMonth[0]?.v} units/mo`},{c:G,l:`2025 avg: ${byMonth[12]?.v} units/mo`},{c:GR,l:`1H '26 avg: ${byMonth[24]?.v} units/mo`}],"Monthly Units Absorbed — Market Total (Jan 2024 – Jun 2026)")} dlLabel="Download PNG"/>
+              <CardHead title="Monthly Units Absorbed — Market Total (Jan 2024 – Jun 2026)" sub="Estimated from annual totals · Step change reflects annual absorption rate shift" onDl={()=>dlPNG("ch-bymonth","monthly_trend",[{c:BL,l:`2024 avg: ${byMonth[0]?.v} units/mo`},{c:G,l:`2025 avg: ${byMonth[12]?.v} units/mo`},{c:GR,l:`1H '26 avg: ${byMonth[24]?.v} units/mo`}],"Monthly Units Absorbed — Market Total (Jan 2024 – Jun 2026)",DISCLAIMER)} dlLabel="Download PNG"/>
               <div id="ch-bymonth" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={260}>
                   <AreaChart data={byMonth} margin={{top:10,right:20,bottom:62,left:14}}>
@@ -510,7 +517,7 @@ export default function App(){
               </table>
             </div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:14}}>
-              <CardHead title="Monthly Absorption Rate — All Projects" sub="Sales Rate ÷ Months since launch" onDl={()=>dlPNG("ch-monthly","monthly_abs",MONTHLY_LEGEND,"Monthly Absorption Rate — All Projects")} dlLabel="Download PNG"/>
+              <CardHead title="Monthly Absorption Rate — All Projects" sub="Sales Rate ÷ Months since launch" onDl={()=>dlPNG("ch-monthly","monthly_abs",MONTHLY_LEGEND,"Monthly Absorption Rate — All Projects",DISCLAIMER)} dlLabel="Download PNG"/>
               <div id="ch-monthly" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={430}>
                   <BarChart data={aB} layout="vertical" margin={{top:10,right:55,bottom:10,left:8}}>
@@ -527,7 +534,7 @@ export default function App(){
               <Disclaimer/>
             </div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:14}}>
-              <CardHead title="Monthly Unit Absorption — All Projects" sub="Avg units absorbed per month since launch · Color = absorption rate tier" onDl={()=>dlPNG("ch-munits","monthly_units",MONTHLY_LEGEND,"Monthly Unit Absorption — All Projects")} dlLabel="Download PNG"/>
+              <CardHead title="Monthly Unit Absorption — All Projects" sub="Avg units absorbed per month since launch · Color = absorption rate tier" onDl={()=>dlPNG("ch-munits","monthly_units",MONTHLY_LEGEND,"Monthly Unit Absorption — All Projects",DISCLAIMER)} dlLabel="Download PNG"/>
               <div id="ch-munits" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={430}>
                   <BarChart data={aMU} layout="vertical" margin={{top:10,right:62,bottom:10,left:8}}>
@@ -544,7 +551,7 @@ export default function App(){
               <Disclaimer/>
             </div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:14}}>
-              <CardHead title="Total Monthly Units Sold — By Developer" sub={`Combined market: ${totalMU} units/month across all developers`} onDl={()=>dlPNG("ch-devmu","dev_monthly_units",[{c:G,l:`Market total: ${totalMU} u/mo`},{c:GR,l:`Avg per developer: ${(totalMU/devMU.length).toFixed(1)} u/mo`}],"Total Monthly Units Sold — By Developer")} dlLabel="Download PNG"/>
+              <CardHead title="Total Monthly Units Sold — By Developer" sub={`Combined market: ${totalMU} units/month across all developers`} onDl={()=>dlPNG("ch-devmu","dev_monthly_units",[{c:G,l:`Market total: ${totalMU} u/mo`},{c:GR,l:`Avg per developer: ${(totalMU/devMU.length).toFixed(1)} u/mo`}],"Total Monthly Units Sold — By Developer",DISCLAIMER)} dlLabel="Download PNG"/>
               <div id="ch-devmu" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={290}>
                   <BarChart data={devMU} margin={{top:20,right:24,bottom:70,left:50}}>
