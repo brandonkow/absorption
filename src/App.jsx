@@ -24,6 +24,19 @@ const PERF_LEGEND=[{c:GR,l:"≥75% Take-Up"},{c:BL,l:"40–74% Take-Up"},{c:RE,l
 const ANN_LEGEND=[{c:BL,l:"2024"},{c:G,l:"2025"},{c:GR,l:"1H 2026"}];
 const MONTHLY_LEGEND=[{c:GR,l:"≥3%/month"},{c:BL,l:"1–3%/month"},{c:RE,l:"<1%/month"}];
 
+function RefLabel({viewBox,value,fill}){
+  const {x,y,width,height}=viewBox||{};
+  const isVertical=width!=null&&width!==0;
+  const lx=isVertical?(x||0)+(width||0)/2:(x||0)+6;
+  const ly=isVertical?(y||0)-6:(y||0)-(height||0)/2-6;
+  const textLen=String(value).length*6+10;
+  return(
+    <g>
+      <rect x={lx-2} y={ly-12} width={textLen} height={16} rx={3} fill="#FFFFFF" opacity={0.9}/>
+      <text x={lx+3} y={ly} fill={fill||"#538184"} fontSize={10} fontWeight={600} fontFamily="'Segoe UI',sans-serif">{value}</text>
+    </g>
+  );
+}
 function Badge({color,text}){
   return (<span style={{background:color+"22",color:color,padding:"2px 10px",borderRadius:20,fontSize:11,fontWeight:600}}>{text}</span>);
 }
@@ -340,7 +353,7 @@ export default function App(){
                     <XAxis type="number" domain={[0,100]} tick={{fill:MU,fontSize:11}} unit="%" tickCount={6}/>
                     <YAxis dataKey="name" type="category" tick={{fill:MU,fontSize:9}} width={190} interval={0}/>
                     <Tooltip content={<BarTip/>}/>
-                    <ReferenceLine x={parseFloat(avgR)} stroke={G} strokeDasharray="4 4" label={{value:`Avg ${avgR}%`,fill:G,fontSize:10,position:"top"}}/>
+                    <ReferenceLine x={parseFloat(avgR)} stroke={G} strokeDasharray="4 4" label={<RefLabel value={`Avg ${avgR}%`} fill={G}/>}/>
                     <Bar dataKey="v" radius={[0,4,4,0]} label={({x,y,width,height,value})=><text x={x+width+5} y={y+height/2+4} fill={TX} fontSize={9} fontWeight="600">{value}%</text>}>{bD.map((d,i)=><Cell key={i} fill={d.color}/>)}</Bar>
                   </BarChart>
                 </ResponsiveContainer>
@@ -525,7 +538,7 @@ export default function App(){
                     <XAxis type="number" tick={{fill:MU,fontSize:11}} unit="%" tickCount={6}/>
                     <YAxis dataKey="name" type="category" tick={{fill:MU,fontSize:9}} width={190} interval={0}/>
                     <Tooltip content={<AbsTip/>}/>
-                    <ReferenceLine x={parseFloat(avgM)} stroke={G} strokeDasharray="4 4" label={{value:`Avg ${avgM}%`,fill:G,fontSize:10,position:"top"}}/>
+                    <ReferenceLine x={parseFloat(avgM)} stroke={G} strokeDasharray="4 4" label={<RefLabel value={`Avg ${avgM}%`} fill={G}/>}/>
                     <Bar dataKey="v" radius={[0,4,4,0]} label={({x,y,width,height,value})=><text x={x+width+5} y={y+height/2+4} fill={TX} fontSize={9} fontWeight="600">{value}%</text>}>{aB.map((d,i)=><Cell key={i} fill={d.color}/>)}</Bar>
                   </BarChart>
                 </ResponsiveContainer>

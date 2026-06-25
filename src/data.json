@@ -13,7 +13,7 @@
       "pMax": 1031100,
       "launch": 2023,
       "comp": "Q3 2027",
-      "rate": 99.83
+      "rate": 100
     },
     {
       "no": 2,
@@ -28,10 +28,40 @@
       "pMax": 2894760,
       "launch": 2023,
       "comp": "Q4 2027",
-      "rate": 57.52
+      "rate": 58
     },
     {
       "no": 3,
+      "dev": "Unknown",
+      "name": "Ventus & Tradesmen",
+      "units": 397,
+      "sfMin": 409,
+      "sfMax": 829,
+      "psfMin": 1174,
+      "psfMax": 1174,
+      "pMin": 480000,
+      "pMax": 480000,
+      "launch": 2024,
+      "comp": "Q1 2028",
+      "rate": 60
+    },
+    {
+      "no": 4,
+      "dev": "Unknown",
+      "name": "STARK Tower",
+      "units": 618,
+      "sfMin": 425,
+      "sfMax": 640,
+      "psfMin": 1412,
+      "psfMax": 1412,
+      "pMin": 600000,
+      "pMax": 600000,
+      "launch": 2024,
+      "comp": "4Q 2027",
+      "rate": 60
+    },
+    {
+      "no": 5,
       "dev": "E&O",
       "name": "The Lume",
       "units": 261,
@@ -43,10 +73,10 @@
       "pMax": 3820000,
       "launch": 2024,
       "comp": "Q1 2029",
-      "rate": 75.48
+      "rate": 75
     },
     {
-      "no": 4,
+      "no": 6,
       "dev": "E&O",
       "name": "Maris",
       "units": 516,
@@ -58,10 +88,10 @@
       "pMax": 1772000,
       "launch": 2025,
       "comp": "Q3 2029",
-      "rate": 62.21
+      "rate": 62
     },
     {
-      "no": 5,
+      "no": 7,
       "dev": "BSG Property",
       "name": "Westin Residences",
       "units": 498,
@@ -73,10 +103,10 @@
       "pMax": 3501000,
       "launch": 2025,
       "comp": "Q4 2029",
-      "rate": 77.91
+      "rate": 78
     },
     {
-      "no": 6,
+      "no": 8,
       "dev": "GSD Land",
       "name": "G'Vinton",
       "units": 508,
@@ -88,10 +118,10 @@
       "pMax": 682500,
       "launch": 2024,
       "comp": "Q3 2027",
-      "rate": 4.72
+      "rate": 5
     },
     {
-      "no": 7,
+      "no": 9,
       "dev": "BSG Property",
       "name": "Lumina Residence",
       "units": 596,
@@ -103,10 +133,10 @@
       "pMax": 1614000,
       "launch": 2024,
       "comp": "Q2 2028",
-      "rate": 80.87
+      "rate": 81
     },
     {
-      "no": 8,
+      "no": 10,
       "dev": "Tamarins",
       "name": "The Anton",
       "units": 51,
@@ -118,10 +148,10 @@
       "pMax": 5052000,
       "launch": 2024,
       "comp": "Q4 2026",
-      "rate": 94.12
+      "rate": 94
     },
     {
-      "no": 9,
+      "no": 11,
       "dev": "Chin Hin",
       "name": "The Crown",
       "units": 588,
@@ -133,10 +163,10 @@
       "pMax": 1081000,
       "launch": 2023,
       "comp": "Q4 2028",
-      "rate": 78.74
+      "rate": 79
     },
     {
-      "no": 10,
+      "no": 12,
       "dev": "Advance Golden",
       "name": "Scott @ Logan",
       "units": 311,
@@ -148,10 +178,10 @@
       "pMax": 782800,
       "launch": 2024,
       "comp": "Q3 2027",
-      "rate": 22.19
+      "rate": 22
     },
     {
-      "no": 11,
+      "no": 13,
       "dev": "Airmas",
       "name": "Alton Skyvillas",
       "units": 161,
@@ -163,10 +193,10 @@
       "pMax": 1360000,
       "launch": 2023,
       "comp": "Q2 2026",
-      "rate": 67.7
+      "rate": 68
     },
     {
-      "no": 12,
+      "no": 14,
       "dev": "IJM",
       "name": "Lightwater Residences",
       "units": 262,
@@ -178,10 +208,10 @@
       "pMax": 3507000,
       "launch": 2024,
       "comp": "Q1 2027",
-      "rate": 16.03
+      "rate": 12
     },
     {
-      "no": 13,
+      "no": 15,
       "dev": "Exsim",
       "name": "The Lighthauz",
       "units": 671,
@@ -193,10 +223,10 @@
       "pMax": 1173700,
       "launch": 2025,
       "comp": "Q4 2028",
-      "rate": 72.58
+      "rate": 73
     },
     {
-      "no": 14,
+      "no": 16,
       "dev": "E&O",
       "name": "Avea",
       "units": 1080,
@@ -208,10 +238,10 @@
       "pMax": 1671000,
       "launch": 2025,
       "comp": "Q4 2028",
-      "rate": 21.85
+      "rate": 22
     },
     {
-      "no": 15,
+      "no": 17,
       "dev": "SP Setia",
       "name": "Setia SV2",
       "units": 268,
@@ -223,10 +253,10 @@
       "pMax": 1604000,
       "launch": 2025,
       "comp": "Q4 2028",
-      "rate": 6.72
+      "rate": 7
     },
     {
-      "no": 16,
+      "no": 18,
       "dev": "Exsim",
       "name": "Keeperz Suites",
       "units": 493,
@@ -238,10 +268,10 @@
       "pMax": 1001000,
       "launch": 2026,
       "comp": "Q1 2029",
-      "rate": 0.2
+      "rate": 0
     },
     {
-      "no": 17,
+      "no": 19,
       "dev": "Rackson",
       "name": "Avion",
       "units": 608,
@@ -253,10 +283,10 @@
       "pMax": 1224000,
       "launch": 2024,
       "comp": "Q1 2027",
-      "rate": 80.26
+      "rate": 80
     },
     {
-      "no": 18,
+      "no": 20,
       "dev": "Seal Inc.",
       "name": "Bayan Suite",
       "units": 326,
@@ -268,7 +298,7 @@
       "pMax": 848800,
       "launch": 2024,
       "comp": "Q4 2027",
-      "rate": 49.69
+      "rate": 50
     }
   ],
   "ann": [
@@ -408,7 +438,7 @@
       "units": 456,
       "psfMin": 1016,
       "psfMax": 1045,
-      "rate": 50.22
+      "rate": 50
     },
     {
       "dev": "YTL",
