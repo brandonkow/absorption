@@ -26,15 +26,25 @@ const MONTHLY_LEGEND=[{c:GR,l:"≥3%/month"},{c:BL,l:"1–3%/month"},{c:RE,l:"<1
 
 function RefLabel({viewBox,value,fill}){
   const {x=0,y=0,width=0,height=0}=viewBox||{};
-  // height===0 → horizontal line (y= prop); otherwise vertical line (x= prop)
-  const isHLine=height===0;
-  const lx=isHLine?x+width/2:x+4;
-  const ly=isHLine?y-4:y+14;
-  const textLen=String(value).length*6.5+8;
+  // A horizontal reference line (y= prop) has height 0 and a positive width;
+  // a vertical line (x= prop) has width 0 and a positive height.
+  const isHLine=height===0&&width>0;
+  const textW=String(value).length*6.3+10;
+  let bx,by;
+  if(isHLine){
+    // Sit the label at the right end of the line, just above it (mid-chart,
+    // so it can never clip against the top edge of the plot).
+    bx=x+width-textW-4;
+    by=y-18;
+  }else{
+    // Vertical line: pin near the top of the plot, just right of the line.
+    bx=x+4;
+    by=y+2;
+  }
   return(
     <g>
-      <rect x={lx-2} y={ly-12} width={textLen} height={16} rx={3} fill="#FFFFFF" opacity={0.9}/>
-      <text x={lx+2} y={ly} fill={fill||"#538184"} fontSize={10} fontWeight={600} fontFamily="'Segoe UI',sans-serif">{value}</text>
+      <rect x={bx} y={by} width={textW} height={16} rx={3} fill="#FFFFFF" opacity={0.92}/>
+      <text x={bx+5} y={by+12} fill={fill||"#538184"} fontSize={10} fontWeight={600} fontFamily="'Segoe UI',sans-serif">{value}</text>
     </g>
   );
 }
@@ -556,7 +566,7 @@ export default function App(){
                     <XAxis type="number" tick={{fill:MU,fontSize:11}} tickCount={6}/>
                     <YAxis dataKey="name" type="category" tick={{fill:MU,fontSize:9}} width={190} interval={0}/>
                     <Tooltip content={<AbsUnitTip/>}/>
-                    <ReferenceLine x={parseFloat(avgMU)} stroke={G} strokeDasharray="4 4" label={{value:`Avg ${avgMU}`,fill:G,fontSize:10,position:"top"}}/>
+                    <ReferenceLine x={parseFloat(avgMU)} stroke={G} strokeDasharray="4 4" label={<RefLabel value={`Avg ${avgMU}`} fill={G}/>}/>
                     <Bar dataKey="v" radius={[0,4,4,0]} label={({x,y,width,height,value})=><text x={x+width+4} y={y+height/2+4} fill={TX} fontSize={9}>{value}</text>}>{aMU.map((d,i)=><Cell key={i} fill={d.color}/>)}</Bar>
                   </BarChart>
                 </ResponsiveContainer>
@@ -573,7 +583,7 @@ export default function App(){
                     <XAxis dataKey="name" tick={{fill:MU,fontSize:9}} interval={0} angle={-45} textAnchor="end" height={74}/>
                     <YAxis tick={{fill:MU,fontSize:10}} width={46}/>
                     <Tooltip content={<DevMUTip/>}/>
-                    <ReferenceLine y={totalMU/devMU.length} stroke={G} strokeDasharray="4 4" label={{value:`Avg ${(totalMU/devMU.length).toFixed(1)}`,fill:G,fontSize:10,position:"top"}}/>
+                    <ReferenceLine y={totalMU/devMU.length} stroke={G} strokeDasharray="4 4" label={<RefLabel value={`Avg ${(totalMU/devMU.length).toFixed(1)}`} fill={G}/>}/>
                     <Bar dataKey="v" radius={[4,4,0,0]} label={({x,y,width,value})=><text x={x+width/2} y={y-5} fill={TX} textAnchor="middle" fontSize={10} fontWeight="600">{value}</text>}>
                       {devMU.map((d,i)=><Cell key={i} fill={[GR,BL,G,RE,G2,"#778F9C","#E5B8D0","#A0C4B0"][i%8]}/>)}
                     </Bar>
