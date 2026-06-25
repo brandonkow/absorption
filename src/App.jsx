@@ -6,7 +6,7 @@ import SHEET_DATA from "./data.json";
 const G="#17E88F",G2="#80BBAD",DK="#F5F7F6",CD="#FFFFFF",BD="#DDE4E2",
   TX="#1C2828",MU="#6A7E7A",GR="#003F2D",RE="#C0392B",BL="#538184";
 const TP={background:"#1C2828",border:"1px solid #2E3C3A",borderRadius:6,padding:"10px 14px",boxShadow:"0 4px 20px rgba(0,0,0,0.3)",fontSize:12,color:"#fff"};
-const pct=v=>`${v.toFixed(1)}%`;
+const pct=v=>`${Math.round(v)}%`;
 const fmt=v=>v>=1e6?`RM ${(v/1e6).toFixed(2)}M`:`RM ${(v/1e3).toFixed(0)}K`;
 const rc=r=>r>=75?GR:r>=40?BL:RE;
 const MONTHS={2023:30,2024:18,2025:6,2026:2};
@@ -30,21 +30,15 @@ function RefLabel({viewBox,value,fill}){
   // a vertical line (x= prop) has width 0 and a positive height.
   const isHLine=height===0&&width>0;
   const textW=String(value).length*6.3+10;
-  let bx,by;
-  if(isHLine){
-    // Sit the label at the right end of the line, just above it (mid-chart,
-    // so it can never clip against the top edge of the plot).
-    bx=x+width-textW-4;
-    by=y-18;
-  }else{
-    // Vertical line: pin near the top of the plot, just right of the line.
-    bx=x+4;
-    by=y+2;
-  }
+  // For a vertical line, y is the top of the plot; for a horizontal line, y is
+  // the line itself. Either way, sit the pill fully ABOVE that point so it never
+  // overlaps the bars. (Charts using this carry enough top margin to fit it.)
+  const by=y-17;
+  const bx=isHLine?(x+width-textW-2):(x+5);
   return(
     <g>
-      <rect x={bx} y={by} width={textW} height={16} rx={3} fill="#FFFFFF" opacity={0.92}/>
-      <text x={bx+5} y={by+12} fill={fill||"#538184"} fontSize={10} fontWeight={600} fontFamily="'Segoe UI',sans-serif">{value}</text>
+      <rect x={bx} y={by} width={textW} height={15} rx={3} fill="#FFFFFF" opacity={0.95}/>
+      <text x={bx+5} y={by+11} fill={fill||"#538184"} fontSize={10} fontWeight={600} fontFamily="'Segoe UI',sans-serif">{value}</text>
     </g>
   );
 }
@@ -193,12 +187,15 @@ export default function App(){
   },[ANN]);
 
   const en=useMemo(()=>ACTIVE.map(p=>{
-    const mo=MONTHS[p.launch]||6,sold=Math.round(p.units*p.rate/100),monthly=parseFloat((p.rate/mo).toFixed(2)),moUnits=parseFloat((sold/mo).toFixed(1));
-    return{...p,mo,sold,monthly,moUnits,psfMid:Math.round((p.psfMin+p.psfMax)/2),sfMid:Math.round((p.sfMin+p.sfMax)/2),rem:p.units-sold,so:monthly>0?Math.ceil((100-p.rate)/monthly):999,zone:gz(p.name)};
+    const mo=MONTHS[p.launch]||6,sold=Math.round(p.units*p.rate/100);
+    const monthlyRaw=p.rate/mo;                 // precise — used for sell-out projection
+    const monthly=Math.round(monthlyRaw);       // displayed as a whole number
+    const moUnits=Math.round(sold/mo);
+    return{...p,mo,sold,monthly,moUnits,psfMid:Math.round((p.psfMin+p.psfMax)/2),sfMid:Math.round((p.sfMin+p.sfMax)/2),rem:p.units-sold,so:monthlyRaw>0?Math.ceil((100-p.rate)/monthlyRaw):999,zone:gz(p.name)};
   }),[ACTIVE]);
 
-  const avgR=(ACTIVE.reduce((s,p)=>s+p.rate,0)/ACTIVE.length).toFixed(1);
-  const avgM=(en.reduce((s,p)=>s+p.monthly,0)/en.length).toFixed(2);
+  const avgR=Math.round(ACTIVE.reduce((s,p)=>s+p.rate,0)/ACTIVE.length);
+  const avgM=Math.round(en.reduce((s,p)=>s+p.monthly,0)/en.length);
   const topPerf=en.reduce((a,p)=>p.monthly>a.monthly?p:a,en[0]||{name:"—",monthly:0});
   const sorted=[...en].sort((a,b)=>{const av=a[sc],bv=b[sc];if(typeof av==="string")return sd==="desc"?bv.localeCompare(av):av.localeCompare(bv);return sd==="desc"?bv-av:av-bv;});
   const ds=col=>{if(sc===col)setSd(d=>d==="desc"?"asc":"desc");else{setSc(col);setSd("desc");}};
@@ -206,9 +203,9 @@ export default function App(){
   const bD=[...en].sort((a,b)=>b.rate-a.rate).map(p=>({name:p.name,full:p.name,dev:p.dev,v:p.rate,color:p.rate>=75?GR:p.rate>=40?BL:RE}));
   const aB=[...en].sort((a,b)=>b.monthly-a.monthly).map(p=>({name:p.name,full:p.name,dev:p.dev,v:p.monthly,color:p.monthly>=3?GR:p.monthly>=1?BL:RE}));
   const aMU=[...en].sort((a,b)=>b.moUnits-a.moUnits).map(p=>({name:p.name,full:p.name,dev:p.dev,v:p.moUnits,color:p.monthly>=3?GR:p.monthly>=1?BL:RE}));
-  const avgMU=(en.reduce((s,p)=>s+p.moUnits,0)/en.length).toFixed(1);
-  const devMU=Object.entries(en.reduce((a,p)=>{if(!a[p.dev])a[p.dev]={n:0,mu:0};a[p.dev].n++;a[p.dev].mu+=p.moUnits;return a;},{})).map(([dev,d])=>({name:dev,v:+d.mu.toFixed(1),n:d.n})).sort((a,b)=>b.v-a.v);
-  const totalMU=+en.reduce((s,p)=>s+p.moUnits,0).toFixed(1);
+  const avgMU=Math.round(en.reduce((s,p)=>s+p.moUnits,0)/en.length);
+  const devMU=Object.entries(en.reduce((a,p)=>{if(!a[p.dev])a[p.dev]={n:0,mu:0};a[p.dev].n++;a[p.dev].mu+=p.moUnits;return a;},{})).map(([dev,d])=>({name:dev,v:Math.round(d.mu),n:d.n})).sort((a,b)=>b.v-a.v);
+  const totalMU=Math.round(en.reduce((s,p)=>s+p.moUnits,0));
   const sc2=en.map(p=>({x:p.sfMid,y:p.psfMid,z:p.units,name:p.name,dev:p.dev,rate:p.rate}));
   const SEGS=[
     {label:"Entry Luxury",range:"< RM 800K",color:BL,persona:"First-time luxury buyers, young professionals and investors seeking rental yield. Price-sensitive but aspirational.",proj:en.filter(p=>p.pMin<800000)},
@@ -359,7 +356,7 @@ export default function App(){
               <CardHead title="Sales Take-Up Rate by Project (%)" sub="Dark Green ≥75% · Sage 40–74% · Red <40%" onDl={()=>dlPNG("ch-sales","sales_rate",PERF_LEGEND,"Sales Take-Up Rate by Project (%)")} dlLabel="Download PNG"/>
               <div id="ch-sales" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={430}>
-                  <BarChart data={bD} layout="vertical" margin={{top:10,right:52,bottom:10,left:8}}>
+                  <BarChart data={bD} layout="vertical" margin={{top:28,right:52,bottom:10,left:8}}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#DDE4E2" horizontal={false}/>
                     <XAxis type="number" domain={[0,100]} tick={{fill:MU,fontSize:11}} unit="%" tickCount={6}/>
                     <YAxis dataKey="name" type="category" tick={{fill:MU,fontSize:9}} width={190} interval={0}/>
@@ -372,7 +369,7 @@ export default function App(){
               <LegendRow items={PERF_LEGEND}/>
             </div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden"}}>
-              <CardHead title="Developer Performance Summary" onDl={()=>dlCSV(Object.entries(en.reduce((a,p)=>{if(!a[p.dev])a[p.dev]={dev:p.dev,n:0,u:0,s:0};a[p.dev].n++;a[p.dev].u+=p.units;a[p.dev].s+=p.sold;return a;},{})).map(([,d])=>({...d,rate:((d.s/d.u)*100).toFixed(1)})),[{key:"dev",label:"Developer"},{key:"n",label:"Projects"},{key:"u",label:"Units"},{key:"s",label:"Sold"},{key:"rate",label:"Take-Up %"}],"dev_performance")} dlLabel="Export CSV"/>
+              <CardHead title="Developer Performance Summary" onDl={()=>dlCSV(Object.entries(en.reduce((a,p)=>{if(!a[p.dev])a[p.dev]={dev:p.dev,n:0,u:0,s:0};a[p.dev].n++;a[p.dev].u+=p.units;a[p.dev].s+=p.sold;return a;},{})).map(([,d])=>({...d,rate:Math.round((d.s/d.u)*100)})),[{key:"dev",label:"Developer"},{key:"n",label:"Projects"},{key:"u",label:"Units"},{key:"s",label:"Sold"},{key:"rate",label:"Take-Up %"}],"dev_performance")} dlLabel="Export CSV"/>
               <div style={{padding:"0 18px 18px"}}>
                 {Object.entries(en.reduce((a,p)=>{if(!a[p.dev])a[p.dev]={n:0,u:0,s:0};a[p.dev].n++;a[p.dev].u+=p.units;a[p.dev].s+=p.sold;return a;},{})).sort((a,b)=>(b[1].s/b[1].u)-(a[1].s/a[1].u)).map(([dev,d],i)=>{
                   const r=d.s/d.u*100;
@@ -380,7 +377,7 @@ export default function App(){
                     <div style={{width:130,fontSize:12,color:TX}}>{dev}</div>
                     <div style={{fontSize:11,color:MU,width:55}}>{d.n} proj.</div>
                     <div style={{flex:1,height:7,background:"#DDE4E2",borderRadius:4}}><div style={{height:"100%",width:`${Math.min(r,100)}%`,background:rc(r),borderRadius:4}}/></div>
-                    <div style={{width:50,textAlign:"right",color:rc(r),fontWeight:700,fontSize:13}}>{r.toFixed(1)}%</div>
+                    <div style={{width:50,textAlign:"right",color:rc(r),fontWeight:700,fontSize:13}}>{Math.round(r)}%</div>
                     <div style={{width:90,textAlign:"right",fontSize:11,color:MU}}>{d.s}/{d.u} units</div>
                   </div>);
                 })}
@@ -544,7 +541,7 @@ export default function App(){
               <CardHead title="Monthly Absorption Rate — All Projects" sub="Sales Rate ÷ Months since launch" onDl={()=>dlPNG("ch-monthly","monthly_abs",MONTHLY_LEGEND,"Monthly Absorption Rate — All Projects",DISCLAIMER)} dlLabel="Download PNG"/>
               <div id="ch-monthly" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={430}>
-                  <BarChart data={aB} layout="vertical" margin={{top:10,right:55,bottom:10,left:8}}>
+                  <BarChart data={aB} layout="vertical" margin={{top:28,right:55,bottom:10,left:8}}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#DDE4E2" horizontal={false}/>
                     <XAxis type="number" tick={{fill:MU,fontSize:11}} unit="%" tickCount={6}/>
                     <YAxis dataKey="name" type="category" tick={{fill:MU,fontSize:9}} width={190} interval={0}/>
@@ -561,7 +558,7 @@ export default function App(){
               <CardHead title="Monthly Unit Absorption — All Projects" sub="Avg units absorbed per month since launch · Color = absorption rate tier" onDl={()=>dlPNG("ch-munits","monthly_units",MONTHLY_LEGEND,"Monthly Unit Absorption — All Projects",DISCLAIMER)} dlLabel="Download PNG"/>
               <div id="ch-munits" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={430}>
-                  <BarChart data={aMU} layout="vertical" margin={{top:10,right:62,bottom:10,left:8}}>
+                  <BarChart data={aMU} layout="vertical" margin={{top:28,right:62,bottom:10,left:8}}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#DDE4E2" horizontal={false}/>
                     <XAxis type="number" tick={{fill:MU,fontSize:11}} tickCount={6}/>
                     <YAxis dataKey="name" type="category" tick={{fill:MU,fontSize:9}} width={190} interval={0}/>
@@ -575,7 +572,7 @@ export default function App(){
               <Disclaimer/>
             </div>
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden",marginBottom:14}}>
-              <CardHead title="Total Monthly Units Sold — By Developer" sub={`Combined market: ${totalMU} units/month across all developers`} onDl={()=>dlPNG("ch-devmu","dev_monthly_units",[{c:G,l:`Market total: ${totalMU} u/mo`},{c:GR,l:`Avg per developer: ${(totalMU/devMU.length).toFixed(1)} u/mo`}],"Total Monthly Units Sold — By Developer",DISCLAIMER)} dlLabel="Download PNG"/>
+              <CardHead title="Total Monthly Units Sold — By Developer" sub={`Combined market: ${totalMU} units/month across all developers`} onDl={()=>dlPNG("ch-devmu","dev_monthly_units",[{c:G,l:`Market total: ${totalMU} u/mo`},{c:GR,l:`Avg per developer: ${Math.round(totalMU/devMU.length)} u/mo`}],"Total Monthly Units Sold — By Developer",DISCLAIMER)} dlLabel="Download PNG"/>
               <div id="ch-devmu" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={290}>
                   <BarChart data={devMU} margin={{top:20,right:24,bottom:70,left:50}}>
@@ -583,7 +580,7 @@ export default function App(){
                     <XAxis dataKey="name" tick={{fill:MU,fontSize:9}} interval={0} angle={-45} textAnchor="end" height={74}/>
                     <YAxis tick={{fill:MU,fontSize:10}} width={46}/>
                     <Tooltip content={<DevMUTip/>}/>
-                    <ReferenceLine y={totalMU/devMU.length} stroke={G} strokeDasharray="4 4" label={<RefLabel value={`Avg ${(totalMU/devMU.length).toFixed(1)}`} fill={G}/>}/>
+                    <ReferenceLine y={totalMU/devMU.length} stroke={G} strokeDasharray="4 4" label={<RefLabel value={`Avg ${Math.round(totalMU/devMU.length)}`} fill={G}/>}/>
                     <Bar dataKey="v" radius={[4,4,0,0]} label={({x,y,width,value})=><text x={x+width/2} y={y-5} fill={TX} textAnchor="middle" fontSize={10} fontWeight="600">{value}</text>}>
                       {devMU.map((d,i)=><Cell key={i} fill={[GR,BL,G,RE,G2,"#778F9C","#E5B8D0","#A0C4B0"][i%8]}/>)}
                     </Bar>
@@ -667,7 +664,7 @@ export default function App(){
                   <div style={{fontSize:11,fontWeight:600,color:c,marginBottom:6}}>{zone}</div>
                   <div style={{fontSize:11,color:MU,marginBottom:6}}>{d.ps.length} project{d.ps.length>1?"s":""} · {d.u.toLocaleString()} units</div>
                   <div style={{height:5,background:"#DDE4E2",borderRadius:3,marginBottom:6}}><div style={{height:"100%",width:`${Math.min(r,100)}%`,background:c,borderRadius:3}}/></div>
-                  <div style={{fontSize:12,color:rc(r),fontWeight:700,marginBottom:6}}>{r.toFixed(1)}% take-up</div>
+                  <div style={{fontSize:12,color:rc(r),fontWeight:700,marginBottom:6}}>{Math.round(r)}% take-up</div>
                   <div style={{fontSize:10,color:MU,lineHeight:1.7}}>{d.ps.slice(0,3).join(", ")}{d.ps.length>3?` +${d.ps.length-3} more`:""}</div>
                 </div>);
               })}
@@ -737,7 +734,7 @@ export default function App(){
                   <div style={{fontSize:11,color:s.color,fontWeight:600,marginBottom:8}}>{s.range}</div>
                   <div style={{fontSize:22,fontWeight:700,color:s.color}}>{s.proj.length} <span style={{fontSize:12,fontWeight:400,color:MU}}>projects</span></div>
                   <div style={{fontSize:11,color:MU,marginTop:4}}>{s.proj.reduce((a,p)=>a+p.units,0).toLocaleString()} units</div>
-                  <div style={{fontSize:12,color:rc(s.proj.reduce((a,p)=>a+p.rate,0)/s.proj.length),fontWeight:600,marginTop:6}}>Avg {(s.proj.reduce((a,p)=>a+p.rate,0)/s.proj.length).toFixed(1)}% take-up</div>
+                  <div style={{fontSize:12,color:rc(s.proj.reduce((a,p)=>a+p.rate,0)/s.proj.length),fontWeight:600,marginTop:6}}>Avg {Math.round(s.proj.reduce((a,p)=>a+p.rate,0)/s.proj.length)}% take-up</div>
                 </div>
               ))}
             </div>
