@@ -43,8 +43,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const DEV_MAP = {
   "Noordinz Suites":          "Exsim",
   "Queens Residences Q3":     "Ideal",
-  "Ventus & Tradesmen":       "Unknown",
-  "STARK Tower":              "Unknown",
   "The Lume":                 "E&O",
   "Maris":                    "E&O",
   "Westin Residences":        "BSG Property",

@@ -32,36 +32,6 @@
     },
     {
       "no": 3,
-      "dev": "Unknown",
-      "name": "Ventus & Tradesmen",
-      "units": 397,
-      "sfMin": 409,
-      "sfMax": 829,
-      "psfMin": 1174,
-      "psfMax": 1174,
-      "pMin": 480000,
-      "pMax": 480000,
-      "launch": 2024,
-      "comp": "Q1 2028",
-      "rate": 60
-    },
-    {
-      "no": 4,
-      "dev": "Unknown",
-      "name": "STARK Tower",
-      "units": 618,
-      "sfMin": 425,
-      "sfMax": 640,
-      "psfMin": 1412,
-      "psfMax": 1412,
-      "pMin": 600000,
-      "pMax": 600000,
-      "launch": 2024,
-      "comp": "4Q 2027",
-      "rate": 60
-    },
-    {
-      "no": 5,
       "dev": "E&O",
       "name": "The Lume",
       "units": 261,
@@ -76,7 +46,7 @@
       "rate": 75
     },
     {
-      "no": 6,
+      "no": 4,
       "dev": "E&O",
       "name": "Maris",
       "units": 516,
@@ -91,7 +61,7 @@
       "rate": 62
     },
     {
-      "no": 7,
+      "no": 5,
       "dev": "BSG Property",
       "name": "Westin Residences",
       "units": 498,
@@ -106,7 +76,7 @@
       "rate": 78
     },
     {
-      "no": 8,
+      "no": 6,
       "dev": "GSD Land",
       "name": "G'Vinton",
       "units": 508,
@@ -121,7 +91,7 @@
       "rate": 5
     },
     {
-      "no": 9,
+      "no": 7,
       "dev": "BSG Property",
       "name": "Lumina Residence",
       "units": 596,
@@ -136,7 +106,7 @@
       "rate": 81
     },
     {
-      "no": 10,
+      "no": 8,
       "dev": "Tamarins",
       "name": "The Anton",
       "units": 51,
@@ -151,7 +121,7 @@
       "rate": 94
     },
     {
-      "no": 11,
+      "no": 9,
       "dev": "Chin Hin",
       "name": "The Crown",
       "units": 588,
@@ -166,7 +136,7 @@
       "rate": 79
     },
     {
-      "no": 12,
+      "no": 10,
       "dev": "Advance Golden",
       "name": "Scott @ Logan",
       "units": 311,
@@ -181,7 +151,7 @@
       "rate": 22
     },
     {
-      "no": 13,
+      "no": 11,
       "dev": "Airmas",
       "name": "Alton Skyvillas",
       "units": 161,
@@ -196,7 +166,7 @@
       "rate": 68
     },
     {
-      "no": 14,
+      "no": 12,
       "dev": "IJM",
       "name": "Lightwater Residences",
       "units": 262,
@@ -211,7 +181,7 @@
       "rate": 12
     },
     {
-      "no": 15,
+      "no": 13,
       "dev": "Exsim",
       "name": "The Lighthauz",
       "units": 671,
@@ -226,7 +196,7 @@
       "rate": 73
     },
     {
-      "no": 16,
+      "no": 14,
       "dev": "E&O",
       "name": "Avea",
       "units": 1080,
@@ -241,7 +211,7 @@
       "rate": 22
     },
     {
-      "no": 17,
+      "no": 15,
       "dev": "SP Setia",
       "name": "Setia SV2",
       "units": 268,
@@ -256,7 +226,7 @@
       "rate": 7
     },
     {
-      "no": 18,
+      "no": 16,
       "dev": "Exsim",
       "name": "Keeperz Suites",
       "units": 493,
@@ -271,7 +241,7 @@
       "rate": 0
     },
     {
-      "no": 19,
+      "no": 17,
       "dev": "Rackson",
       "name": "Avion",
       "units": 608,
@@ -286,7 +256,7 @@
       "rate": 80
     },
     {
-      "no": 20,
+      "no": 18,
       "dev": "Seal Inc.",
       "name": "Bayan Suite",
       "units": 326,
