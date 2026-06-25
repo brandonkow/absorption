@@ -29,16 +29,16 @@ function RefLabel({viewBox,value,fill}){
   // A horizontal reference line (y= prop) has height 0 and a positive width;
   // a vertical line (x= prop) has width 0 and a positive height.
   const isHLine=height===0&&width>0;
-  const textW=String(value).length*6.3+10;
+  const textW=String(value).length*6.3+12;
   // For a vertical line, y is the top of the plot; for a horizontal line, y is
-  // the line itself. Either way, sit the pill fully ABOVE that point so it never
-  // overlaps the bars. (Charts using this carry enough top margin to fit it.)
-  const by=y-17;
-  const bx=isHLine?(x+width-textW-2):(x+5);
+  // the line itself. Sit the pill fully ABOVE that point — in the chart's top
+  // margin — so it floats clear of the bars. Charts carry top margin ≥ 34.
+  const by=y-24;
+  const bx=isHLine?(x+width-textW-2):(x-textW/2);
   return(
     <g>
-      <rect x={bx} y={by} width={textW} height={15} rx={3} fill="#FFFFFF" opacity={0.95}/>
-      <text x={bx+5} y={by+11} fill={fill||"#538184"} fontSize={10} fontWeight={600} fontFamily="'Segoe UI',sans-serif">{value}</text>
+      <rect x={bx} y={by} width={textW} height={17} rx={3} fill="#FFFFFF" stroke={(fill||"#538184")+"55"} strokeWidth={1}/>
+      <text x={bx+textW/2} y={by+12} textAnchor="middle" fill={fill||"#538184"} fontSize={10} fontWeight={700} fontFamily="'Segoe UI',sans-serif">{value}</text>
     </g>
   );
 }
@@ -356,7 +356,7 @@ export default function App(){
               <CardHead title="Sales Take-Up Rate by Project (%)" sub="Dark Green ≥75% · Sage 40–74% · Red <40%" onDl={()=>dlPNG("ch-sales","sales_rate",PERF_LEGEND,"Sales Take-Up Rate by Project (%)")} dlLabel="Download PNG"/>
               <div id="ch-sales" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={430}>
-                  <BarChart data={bD} layout="vertical" margin={{top:28,right:52,bottom:10,left:8}}>
+                  <BarChart data={bD} layout="vertical" margin={{top:36,right:52,bottom:10,left:8}}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#DDE4E2" horizontal={false}/>
                     <XAxis type="number" domain={[0,100]} tick={{fill:MU,fontSize:11}} unit="%" tickCount={6}/>
                     <YAxis dataKey="name" type="category" tick={{fill:MU,fontSize:9}} width={190} interval={0}/>
@@ -541,7 +541,7 @@ export default function App(){
               <CardHead title="Monthly Absorption Rate — All Projects" sub="Sales Rate ÷ Months since launch" onDl={()=>dlPNG("ch-monthly","monthly_abs",MONTHLY_LEGEND,"Monthly Absorption Rate — All Projects",DISCLAIMER)} dlLabel="Download PNG"/>
               <div id="ch-monthly" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={430}>
-                  <BarChart data={aB} layout="vertical" margin={{top:28,right:55,bottom:10,left:8}}>
+                  <BarChart data={aB} layout="vertical" margin={{top:36,right:55,bottom:10,left:8}}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#DDE4E2" horizontal={false}/>
                     <XAxis type="number" tick={{fill:MU,fontSize:11}} unit="%" tickCount={6}/>
                     <YAxis dataKey="name" type="category" tick={{fill:MU,fontSize:9}} width={190} interval={0}/>
@@ -558,7 +558,7 @@ export default function App(){
               <CardHead title="Monthly Unit Absorption — All Projects" sub="Avg units absorbed per month since launch · Color = absorption rate tier" onDl={()=>dlPNG("ch-munits","monthly_units",MONTHLY_LEGEND,"Monthly Unit Absorption — All Projects",DISCLAIMER)} dlLabel="Download PNG"/>
               <div id="ch-munits" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={430}>
-                  <BarChart data={aMU} layout="vertical" margin={{top:28,right:62,bottom:10,left:8}}>
+                  <BarChart data={aMU} layout="vertical" margin={{top:36,right:62,bottom:10,left:8}}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#DDE4E2" horizontal={false}/>
                     <XAxis type="number" tick={{fill:MU,fontSize:11}} tickCount={6}/>
                     <YAxis dataKey="name" type="category" tick={{fill:MU,fontSize:9}} width={190} interval={0}/>
@@ -575,7 +575,7 @@ export default function App(){
               <CardHead title="Total Monthly Units Sold — By Developer" sub={`Combined market: ${totalMU} units/month across all developers`} onDl={()=>dlPNG("ch-devmu","dev_monthly_units",[{c:G,l:`Market total: ${totalMU} u/mo`},{c:GR,l:`Avg per developer: ${Math.round(totalMU/devMU.length)} u/mo`}],"Total Monthly Units Sold — By Developer",DISCLAIMER)} dlLabel="Download PNG"/>
               <div id="ch-devmu" style={{padding:"18px 18px 8px"}}>
                 <ResponsiveContainer width="100%" height={290}>
-                  <BarChart data={devMU} margin={{top:20,right:24,bottom:70,left:50}}>
+                  <BarChart data={devMU} margin={{top:30,right:24,bottom:70,left:50}}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#DDE4E2" vertical={false}/>
                     <XAxis dataKey="name" tick={{fill:MU,fontSize:9}} interval={0} angle={-45} textAnchor="end" height={74}/>
                     <YAxis tick={{fill:MU,fontSize:10}} width={46}/>
@@ -769,10 +769,10 @@ export default function App(){
             <div style={{background:CD,border:"1px solid "+BD,borderRadius:10,overflow:"hidden"}}>
               <div style={{padding:"14px 18px",borderBottom:"1px solid "+BD,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                 <div style={{fontSize:13,fontWeight:700,color:GR}}>🎯 Top Performer Strategy Notes</div>
-                <DBtn onClick={()=>dlCSV([{name:"Noordinz Suites",seg:"Entry Luxury",note:"99.83% sold. Consider higher ASP on future phases."},{name:"The Lighthauz",seg:"Mid Luxury",note:"487 units absorbed 2025–1H26. Differentiate via design."},{name:"Keeperz Suites",seg:"Entry–Mid Luxury",note:"Launched at RM 1,723 max PSF. Lead with investor-yield narrative."}],[{key:"name",label:"Project"},{key:"seg",label:"Segment"},{key:"note",label:"Strategy Note"}],"performer_strategy")} label="Export CSV"/>
+                <DBtn onClick={()=>dlCSV([{name:"Noordinz Suites",seg:"Entry Luxury",note:"100% sold. Consider higher ASP on future phases."},{name:"The Lighthauz",seg:"Mid Luxury",note:"487 units absorbed 2025–1H26. Differentiate via design."},{name:"Keeperz Suites",seg:"Entry–Mid Luxury",note:"Launched at RM 1,723 max PSF. Lead with investor-yield narrative."}],[{key:"name",label:"Project"},{key:"seg",label:"Segment"},{key:"note",label:"Strategy Note"}],"performer_strategy")} label="Export CSV"/>
               </div>
               <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,padding:16}}>
-                {[{name:"Noordinz Suites",seg:"Entry Luxury",note:"99.83% sold — validates strong sub-RM 1M demand. Consider higher ASP on future phases.",c:GR},{name:"The Lighthauz",seg:"Mid Luxury",note:"487 units absorbed 2025–1H26. Differentiate via design and lifestyle programming.",c:G},{name:"Keeperz Suites",seg:"Entry–Mid Luxury",note:"Launched at highest PSF in segment (RM 1,723 max). Lead with investor-yield narrative.",c:BL}].map((item,i)=>(
+                {[{name:"Noordinz Suites",seg:"Entry Luxury",note:"100% sold — validates strong sub-RM 1M demand. Consider higher ASP on future phases.",c:GR},{name:"The Lighthauz",seg:"Mid Luxury",note:"487 units absorbed 2025–1H26. Differentiate via design and lifestyle programming.",c:G},{name:"Keeperz Suites",seg:"Entry–Mid Luxury",note:"Launched at highest PSF in segment (RM 1,723 max). Lead with investor-yield narrative.",c:BL}].map((item,i)=>(
                   <div key={i} style={{background:"#FFFFFF",borderRadius:8,padding:14,border:"1px solid "+BD}}>
                     <div style={{fontSize:12,fontWeight:700,color:GR,marginBottom:2}}>{item.name}</div>
                     <div style={{fontSize:10,color:item.c,marginBottom:8,fontWeight:600}}>{item.seg}</div>
