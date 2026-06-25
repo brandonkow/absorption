@@ -25,15 +25,16 @@ const ANN_LEGEND=[{c:BL,l:"2024"},{c:G,l:"2025"},{c:GR,l:"1H 2026"}];
 const MONTHLY_LEGEND=[{c:GR,l:"≥3%/month"},{c:BL,l:"1–3%/month"},{c:RE,l:"<1%/month"}];
 
 function RefLabel({viewBox,value,fill}){
-  const {x,y,width,height}=viewBox||{};
-  const isVertical=width!=null&&width!==0;
-  const lx=isVertical?(x||0)+(width||0)/2:(x||0)+6;
-  const ly=isVertical?(y||0)-6:(y||0)-(height||0)/2-6;
-  const textLen=String(value).length*6+10;
+  const {x=0,y=0,width=0,height=0}=viewBox||{};
+  // height===0 → horizontal line (y= prop); otherwise vertical line (x= prop)
+  const isHLine=height===0;
+  const lx=isHLine?x+width/2:x+4;
+  const ly=isHLine?y-4:y+14;
+  const textLen=String(value).length*6.5+8;
   return(
     <g>
       <rect x={lx-2} y={ly-12} width={textLen} height={16} rx={3} fill="#FFFFFF" opacity={0.9}/>
-      <text x={lx+3} y={ly} fill={fill||"#538184"} fontSize={10} fontWeight={600} fontFamily="'Segoe UI',sans-serif">{value}</text>
+      <text x={lx+2} y={ly} fill={fill||"#538184"} fontSize={10} fontWeight={600} fontFamily="'Segoe UI',sans-serif">{value}</text>
     </g>
   );
 }
